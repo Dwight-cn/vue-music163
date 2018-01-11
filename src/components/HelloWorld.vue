@@ -1,20 +1,16 @@
 <template>
   <div class="hello">
-    
+    hellow
   </div>
 </template>
 
 <script>
-import Search from '@/components/base/search/search.vue'
 
 export default {
   name: 'HelloWorld',
-  components: {
-    Search
-  },
   data() {
     return {
-      
+
     };
   },
 };
@@ -22,5 +18,5 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
+  
 </style>
