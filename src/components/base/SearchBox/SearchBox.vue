@@ -2,24 +2,43 @@
 <template>
   <div class="search-box">
     <i class="icon-search"></i>
-    <input type="text" v-model="value" placeholder="搜索音乐、歌手、歌词" @focus="searchFocus">
-    <i class="icon-x-circle" v-if="value !== ''" @click="clearValue"></i>
+    <input type="search" v-model="keywords" placeholder="搜索音乐、歌手、歌词" @focus="searchFocus">
+    <i class="icon-x-circle" v-if="keywords !== ''" @click="clearKeywords"></i>
   </div>
 </template>
 
 <script>
+import { mapMutations } from 'vuex';
+
 export default {
   data() {
     return {
-      value: '',
+      keywords: '',
     };
   },
+  computed: {
+
+  },
   methods: {
-    clearValue() {
-      this.value = '';
+    // 清空搜索框
+    clearKeywords() {
+      this.keywords = '';
     },
+    // 搜索框获取焦点时
     searchFocus() {
-      this.$router.push('/search')
+      this.$router.push('/search');
+    },
+    ...mapMutations({
+      setSearchKeyWords: 'SET_SEARCH_KEYWORDS',
+    }),
+  },
+  created() {
+
+  },
+  watch: {
+    // 关键字改变时
+    keywords: function keywords(val) {
+      this.setSearchKeyWords(val.trim());
     },
   },
 };

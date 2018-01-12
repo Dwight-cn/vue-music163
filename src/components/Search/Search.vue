@@ -1,17 +1,45 @@
 <!--头部组件-->
 <template>
   <div class="search">
-    <scroll class="search-scroll">
-        <ul>
-            <li v-for="i in 100" :key="i">{{i}}</li>
-        </ul>
+    <!--搜索历史-->
+    <scroll class="search-hidtory-scroll">
+      <p class="search-label search-hidtory-label">搜索历史</p>
+    </scroll>
+
+    <!--搜索建议-->
+    <scroll class="search-suggest-scroll" v-if="searchKeyWords">
+        <div v-if="searchKeyWords" class="search-suggest-to-search">搜索：{{ searchKeyWords }}</div>
+        <!--单曲-->
+        <div v-if="searchSuggest.songs">
+          <p class="search-label search-suggest-label">单曲</p>
+          <ul>
+            <li v-for="item in searchSuggest.songs" :key="item.id" class="search-suggest-item">{{ item.name }} - {{ item.album.name }}</li>
+          </ul>
+        </div>
+
+        <!--专辑-->
+        <div v-if="searchSuggest.albums">
+          <p class="search-label search-suggest-label">专辑</p>
+          <ul>
+              <li v-for="item in searchSuggest.albums" :key="item.id" class="search-suggest-item">{{ item.name }} - {{ item.artist.name }}</li>
+          </ul>
+        </div>
+        <div v-if="searchSuggest.playlists">
+          <!--歌单-->
+          <p class="search-label search-suggest-label">歌单</p>
+          <ul>
+              <li v-for="item in searchSuggest.playlists" :key="item.id" class="search-suggest-item">{{ item.name }}</li>
+          </ul>
+        </div>
+        <div></div>
     </scroll>
   </div>
 </template>
 
 <script>
-import Scroll from '@/components/base/Scroll/Scroll'
-import { getSearchSuggest } from '@/api/search.js'
+import Scroll from '@/components/base/Scroll/Scroll';
+import { getSearchSuggest } from '@/api/search';
+import { mapState, mapMutations } from 'vuex';
 
 export default {
   components: {
@@ -22,15 +50,46 @@ export default {
 
     };
   },
+  computed: {
+    // 使用对象展开运算符将此对象混入到外部对象中
+    ...mapState([
+      'searchKeyWords',
+      'searchSuggest',
+    ]),
+  },
   methods: {
     _getSearchSuggest(val) {
       getSearchSuggest(val).then((res) => {
-        console.log(res)
-      })
-    }
+        if (res.data.result) {
+          this.setSearchSuggest(res.data.result);
+        }
+        console.log(res.data.result);
+      });
+    },
+    ...mapMutations({
+      setSearchSuggest: 'SET_SEARCH_SUGGEST',
+      setSearching: 'SET_SEARCHING',
+      setSearchKeyWorde: 'SET_SEARCH_KEYWORDS',
+    }),
   },
   created() {
-    this._getSearchSuggest('1')
+    this.setSearching(true);
+  },
+  beforeDestroy() {
+    this.setSearching(false);
+    this.setSearchKeyWorde('');
+  },
+  mounted() {
+
+  },
+  watch: {
+    searchKeyWords: function searchKeyWords(val) {
+      if (val) {
+        this._getSearchSuggest(val);
+      } else {
+        this.setSearchSuggest('');
+      }
+    },
   },
 };
 </script>
@@ -42,8 +101,52 @@ export default {
     bottom: 0;
     width: 100%;
   }
-  .search-scroll{
+  .search-label{
+    margin-top: 12px;
+    font-size: 12px;
+    background: #f5f5f5;
+    line-height: 2;
+    padding-left: .5em;
+  }
+
+  /*搜索历史*/
+  .search-hidtory-scroll{
+    position: absolute;
+    left: 0;
+    top: 0;
     height: 100%;
+    width: 100%;
     overflow: hidden;
+    z-index: 1;
+  }
+
+  /*搜索建议*/
+  .search-suggest-scroll{
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 2;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .search-suggest-item{
+    font-size: 14px;
+    line-height: 3;
+    border-bottom: 1px solid #e2e3e5;
+    margin-left: 0.5em;
+    color: #000;
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+  }
+  .search-suggest-to-search{
+    font-size: 14px;
+    line-height: 3;
+    border-bottom: 1px solid #e2e3e5;
+    margin-left: 0.5em;
+    color: #547fb2;
   }
 </style>

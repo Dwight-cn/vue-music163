@@ -13,3 +13,8 @@ input::-moz-placeholder, textarea::-moz-placeholder {
 input{
   caret-color:#d43b33;
 }
+
+/*去掉搜索框默认的小×*/
+ input[type=search]::-webkit-search-cancel-button{
+    -webkit-appearance: none;
+}
