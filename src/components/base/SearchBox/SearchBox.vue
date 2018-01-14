@@ -2,7 +2,7 @@
 <template>
   <div class="search-box">
     <i class="icon-search"></i>
-    <input type="search" v-model="keywords" placeholder="搜索音乐、歌手、歌词" @focus="searchFocus">
+    <input type="search" v-model="keywords" placeholder="搜索音乐、歌手、歌词" @focus="searchFocus" @click="searchFocus" ref="searchinput">
     <i class="icon-x-circle" v-if="keywords !== ''" @click="clearKeywords"></i>
   </div>
 </template>
@@ -27,6 +27,9 @@ export default {
     // 搜索框获取焦点时
     searchFocus() {
       this.$router.push('/search');
+    },
+    blur() {
+      this.$refs.searchinput.blur();
     },
     ...mapMutations({
       setSearchKeyWords: 'SET_SEARCH_KEYWORDS',

@@ -1,27 +1,66 @@
-<!-- better-scroll 滚动组件 -->
 <template>
-  <div ref="wrapper" class="my-scroll">
-    <slot></slot>
+  <div ref="wrapper" class="list-wrapper">
+  <div class="scroll-content">
+    <div ref="listWrapper">
+    <slot>
+      <ul class="list-content">
+      <li @click="clickItem($event,item)" class="list-item" v-for="item in data" :key="item">{{item}}</li>
+      </ul>
+    </slot>
+    </div>
+    <slot name="pullup"
+      :pullUpLoad="pullUpLoad"
+      :isPullUpLoad="isPullUpLoad"
+    >
+    <div class="pullup-wrapper" v-if="pullUpLoad">
+      <div class="before-trigger" v-if="!isPullUpLoad">
+      <span>{{pullUpTxt}}</span>
+      </div>
+      <div class="after-trigger" v-else>
+      <loading></loading>
+      </div>
+    </div>
+    </slot>
+  </div>
+  <slot name="pulldown"
+      :pullDownRefresh="pullDownRefresh"
+      :pullDownStyle="pullDownStyle"
+      :beforePullDown="beforePullDown"
+      :isPullingDown="isPullingDown"
+      :bubbleY="bubbleY"
+  >
+    <div ref="pulldown" class="pulldown-wrapper" :style="pullDownStyle" v-if="pullDownRefresh">
+    <div class="before-trigger" v-if="beforePullDown">
+      <bubble :y="bubbleY"></bubble>
+    </div>
+    <div class="after-trigger" v-else>
+      <div v-if="isPullingDown" class="loading">
+      <loading></loading>
+      </div>
+      <div v-else><span>{{refreshTxt}}</span></div>
+    </div>
+    </div>
+  </slot>
   </div>
 </template>
 
-<script>
+<script type="text/ecmascript-6">
 import BScroll from 'better-scroll';
+import Loading from '@/components/base/Loading/Loading';
+import Bubble from '@/components/base/Bubble/Bubble';
+
+const COMPONENT_NAME = 'scroll';
+const DIRECTION_H = 'horizontal';
+const DIRECTION_V = 'vertical';
 
 export default {
-  components: {
-
-  },
-  data() {
-    return {
-
-    };
-  },
+  name: COMPONENT_NAME,
   props: {
-    // 传入的数据
     data: {
       type: Array,
-      default: null,
+      default() {
+        return [];
+      },
     },
     probeType: {
       type: Number,
@@ -31,97 +70,279 @@ export default {
       type: Boolean,
       default: true,
     },
-    // 是否监听滚动位置
     listenScroll: {
       type: Boolean,
       default: false,
     },
-    // 是否开启上拉刷新
-    pullup: {
+    listenBeforeScroll: {
       type: Boolean,
       default: false,
     },
-    // 滚动前是否触发事件，如：滚动前让输入框失去焦点，避免滚动搜索结果时移动端键盘遮挡
-    beforeScroll: {
-      type: Boolean,
+    direction: {
+      type: String,
+      default: DIRECTION_V,
+    },
+    scrollbar: {
+      type: null,
       default: false,
     },
-    // 延迟刷新
+    pullDownRefresh: {
+      type: null,
+      default: false,
+    },
+    pullUpLoad: {
+      type: null,
+      default: false,
+    },
+    startY: {
+      type: Number,
+      default: 0,
+    },
     refreshDelay: {
       type: Number,
       default: 20,
     },
-  },
-  watch: {
-    data() {
-      setTimeout(() => {
-        this.refresh();
-      }, this.refreshDelay);
+    freeScroll: {
+      type: Boolean,
+      default: false,
     },
   },
-  methods: {
-    initScroll() {
-      if (!this.$refs.wrapper) {
-        return;
-      }
+  data() {
+    return {
+      beforePullDown: true,
+      isRebounding: false,
+      isPullingDown: false,
+      isPullUpLoad: false,
+      pullUpDirty: true,
+      pullDownStyle: '',
+      bubbleY: 0,
+    };
+  },
+  computed: {
+    pullUpTxt() {
+      const moreTxt = this.pullUpLoad && this.pullUpLoad.txt && this.pullUpLoad.txt.more || this.$i18n.t('scrollComponent.defaultLoadTxtMore');
 
-      this.scroll = new BScroll(this.$refs.wrapper, {
-        probeType: this.probeType,
-        click: this.click,
-      });
+      const noMoreTxt = this.pullUpLoad && this.pullUpLoad.txt && this.pullUpLoad.txt.noMore || this.$i18n.t('scrollComponent.defaultLoadTxtNoMore');
 
-      // 派发监听滚动位置事件
-      if (this.listenScroll) {
-        const me = this;
-        this.scroll.on('scroll', (pos) => {
-          // 向父组件传值
-          me.$emit('scroll', pos);
-        });
-      }
-
-      // 派发上拉刷新时间
-      if (this.pullup) {
-        this.scroll.on('scrollEnd', () => {
-          if (this.scroll.y <= (this.scroll.maxScrollY + 50)) {
-            // 滑动到底部了
-            this.$emit('scrollToEnd');
-          }
-        });
-      }
-
-      // 滚动前是否触发事件
-      if (this.beforeScroll) {
-        this.scroll.on('beforeScrollStart', () => {
-          this.$emit('beforeScroll');
-        });
-      }
+      return this.pullUpDirty ? moreTxt : noMoreTxt;
     },
-    enable() {
-      this.scroll && this.scroll.enable();
-    },
-    disable() {
-      this.scroll && this.scroll.disable();
-    },
-    refresh() {
-      this.scroll && this.scroll.refresh();
-    },
-    scrollTo(...args) {
-      this.scroll && this.scroll.scrollTo(args);
-    },
-    scrollToElement(...args) {
-      this.scroll && this.scroll.scrollToElement(args);
+    refreshTxt() {
+      return this.pullDownRefresh && this.pullDownRefresh.txt || this.$i18n.t('scrollComponent.defaultRefreshTxt');
     },
   },
   created() {
-
+    this.pullDownInitTop = -50;
   },
   mounted() {
     setTimeout(() => {
       this.initScroll();
     }, 20);
   },
+  methods: {
+    initScroll() {
+      if (!this.$refs.wrapper) {
+        return;
+      }
+      if (this.$refs.listWrapper && (this.pullDownRefresh || this.pullUpLoad)) {
+        this.$refs.listWrapper.style.minHeight = `${this.getRect(this.$refs.wrapper).height + 1}px`;
+      }
+
+      const options = {
+        probeType: this.probeType,
+        click: this.click,
+        scrollY: this.freeScroll || this.direction === DIRECTION_V,
+        scrollX: this.freeScroll || this.direction === DIRECTION_H,
+        scrollbar: this.scrollbar,
+        pullDownRefresh: this.pullDownRefresh,
+        pullUpLoad: this.pullUpLoad,
+        startY: this.startY,
+        freeScroll: this.freeScroll,
+      };
+
+      this.scroll = new BScroll(this.$refs.wrapper, options);
+
+      if (this.listenScroll) {
+        this.scroll.on('scroll', (pos) => {
+          this.$emit('scroll', pos);
+        });
+      }
+
+      if (this.listenBeforeScroll) {
+        this.scroll.on('beforeScrollStart', () => {
+          this.$emit('beforeScrollStart');
+        });
+      }
+
+      if (this.pullDownRefresh) {
+        this._initPullDownRefresh();
+      }
+
+      if (this.pullUpLoad) {
+        this._initPullUpLoad();
+      }
+    },
+    disable() {
+      this.scroll && this.scroll.disable();
+    },
+    enable() {
+      this.scroll && this.scroll.enable();
+    },
+    refresh() {
+      this.scroll && this.scroll.refresh();
+    },
+    scrollTo(...args) {
+      this.scroll && this.scroll.scrollTo(...args);
+    },
+    scrollToElement(...args) {
+      this.scroll && this.scroll.scrollToElement(...args);
+    },
+    clickItem(e, item) {
+      console.log(e);
+      this.$emit('click', item);
+    },
+    destroy() {
+      this.scroll.destroy();
+    },
+    forceUpdate(dirty) {
+      if (this.pullDownRefresh && this.isPullingDown) {
+        this.isPullingDown = false;
+        this._reboundPullDown().then(() => {
+          this._afterPullDown();
+        });
+      } else if (this.pullUpLoad && this.isPullUpLoad) {
+        this.isPullUpLoad = false;
+        this.scroll.finishPullUp();
+        this.pullUpDirty = dirty;
+        this.refresh();
+      } else {
+        this.refresh();
+      }
+    },
+    _initPullDownRefresh() {
+      this.scroll.on('pullingDown', () => {
+        this.beforePullDown = false;
+        this.isPullingDown = true;
+        this.$emit('pullingDown');
+      });
+
+      this.scroll.on('scroll', (pos) => {
+        if (this.beforePullDown) {
+          this.bubbleY = Math.max(0, pos.y + this.pullDownInitTop);
+          this.pullDownStyle = `top:${Math.min(pos.y + this.pullDownInitTop, 10)}px`;
+        } else {
+          this.bubbleY = 0;
+        }
+
+        if (this.isRebounding) {
+          this.pullDownStyle = `top:${10 - (this.pullDownRefresh.stop - pos.y)}px`;
+        }
+      });
+    },
+    _initPullUpLoad() {
+      this.scroll.on('pullingUp', () => {
+        this.isPullUpLoad = true;
+        this.$emit('pullingUp');
+      });
+    },
+    _reboundPullDown() {
+      const { stopTime = 600 } = this.pullDownRefresh;
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          this.isRebounding = true;
+          this.scroll.finishPullDown();
+          resolve();
+        }, stopTime);
+      });
+    },
+    _afterPullDown() {
+      setTimeout(() => {
+        this.pullDownStyle = `top:${this.pullDownInitTop}px`;
+        this.beforePullDown = true;
+        this.isRebounding = false;
+        this.refresh();
+      }, this.scroll.options.bounceTime);
+    },
+    getRect(el) {
+      if (el instanceof window.SVGElement) {
+        const rect = el.getBoundingClientRect();
+        return {
+          top: rect.top,
+          left: rect.left,
+          width: rect.width,
+          height: rect.height,
+        };
+      }
+      return {
+        top: el.offsetTop,
+        left: el.offsetLeft,
+        width: el.offsetWidth,
+        height: el.offsetHeight,
+      };
+    },
+  },
+  watch: {
+    data() {
+      setTimeout(() => {
+        this.forceUpdate(true);
+      }, this.refreshDelay);
+    },
+  },
+  components: {
+    Loading,
+    Bubble,
+  },
 };
+
 </script>
 
 <style scoped>
+  .list-wrapper{
+    /* position: relative; */
+    /* height: 100%; */
+    /*position: absolute*/
+    /*left: 0*/
+    /*top: 0*/
+    /*right: 0*/
+    /*bottom: 0*/
+    overflow: hidden;
+    background: #fff;
+  }
+  .list-wrapper .scroll-content{
+    position: relative;
+    z-index: 1;
+  }
+  .list-wrapper .list-content{
+    position: relative;
+    z-index: 10;
+    background: #fff;
+    
+  }
+  .list-wrapper .list-content .list-item{
+    height: 60px;
+    line-height: 60px;
+    font-size: 18px;
+    padding-left: 20px;
+    border-bottom: 1px solid #e5e5e5;
+  }
+
+  .pulldown-wrapper{
+    position: absolute;
+    width: 100%;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all;
+  }
+  .pulldown-wrapper .after-trigger{
+    margin-top: 10px;
+  }
+
+  .pullup-wrapper{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px 0;
+  }
 </style>

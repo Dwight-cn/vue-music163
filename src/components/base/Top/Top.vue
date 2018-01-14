@@ -1,7 +1,7 @@
 <!--头部组件-->
 <template>
   <div class="header">
-    <search-box class="header-search"></search-box>
+    <search-box class="header-search" ref="searchboxref"></search-box>
     <player-mini :playing="playing" v-if="!searching"></player-mini>
     <span class="cancle-search" v-if="searching" @click="cancleSearch">取消</span>
   </div>
@@ -32,6 +32,14 @@ export default {
   methods: {
     cancleSearch() {
       this.$router.push('/');
+    },
+  },
+  watch: {
+    searching: function searching(val) {
+      if (!val) {
+        this.$refs.searchboxref.clearKeywords();
+        this.$refs.searchboxref.blur();
+      }
     },
   },
 };
