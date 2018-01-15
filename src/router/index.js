@@ -8,6 +8,7 @@ Vue.use(Router);
 // 路由懒加载
 const HelloWorld = () => import('@/components/HelloWorld');
 const Search = () => import('@/components/Search/Search');
+const SearchResult = () => import('@/components/base/SearchResult/SearchResult');
 
 export default new Router({
   routes: [
@@ -24,6 +25,13 @@ export default new Router({
       path: '/search',
       name: 'Search',
       component: Search,
+      children: [
+        {
+          path: ':id',
+          name: 'SearchResult',
+          component: SearchResult,
+        },
+      ],
     },
   ],
 });

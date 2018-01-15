@@ -54,5 +54,6 @@ module.exports = {
     'max-len': 0,
     'no-param-reassign': 0,
     'no-plusplus': 0,
+    'arrow-body-style': 0,
   }
 }

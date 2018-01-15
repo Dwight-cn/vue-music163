@@ -2,7 +2,7 @@
 @charset "utf-8";
 body, h1, h2, h3, h4, h5, h6, hr, p, blockquote,
 pre,dl, dt, dd, ul, ol, li,
-form, fieldset, lengend, button, input, textarea,
+form, fieldset, lengend, button, input, textarea, figure,
 th, td { margin: 0; padding: 0; }
 
 /* 重置列表元素 */

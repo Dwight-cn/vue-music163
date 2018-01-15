@@ -2,7 +2,7 @@
 <template>
   <div class="search-box">
     <i class="icon-search"></i>
-    <input type="search" v-model="keywords" placeholder="搜索音乐、歌手、歌词" @focus="searchFocus" @click="searchFocus" ref="searchinput">
+    <input type="search" v-model="keywords" placeholder="搜索音乐、歌手、歌词" @focus="searchFocus" @click="searchFocus" @blur="searchBlur" @keyup.enter="searchEnter" ref="searchinput">
     <i class="icon-x-circle" v-if="keywords !== ''" @click="clearKeywords"></i>
   </div>
 </template>
@@ -27,12 +27,21 @@ export default {
     // 搜索框获取焦点时
     searchFocus() {
       this.$router.push('/search');
+      this.setSearchFocus(true);
     },
+    searchBlur() {
+      this.setSearchFocus(false);
+    },
+    searchEnter() {
+      this.$router.push('/search/1');
+    },
+    // 提供给父组件调用
     blur() {
       this.$refs.searchinput.blur();
     },
     ...mapMutations({
       setSearchKeyWords: 'SET_SEARCH_KEYWORDS',
+      setSearchFocus: 'SET_SEARCHING_FOCUS',
     }),
   },
   created() {

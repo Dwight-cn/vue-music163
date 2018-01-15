@@ -7,6 +7,9 @@ const mutations = {
   [types.SET_SEARCHING](state, flag) {
     state.searching = flag;
   },
+  [types.SET_SEARCHING_FOCUS](state, flag) {
+    state.searchFocus = flag;
+  },
   [types.SET_SEARCH_KEYWORDS](state, searchKeyWords) {
     state.searchKeyWords = searchKeyWords;
   },
@@ -15,6 +18,9 @@ const mutations = {
   },
   [types.SET_SEARCH_HISTORY](state, history) {
     state.searchHistory = history;
+  },
+  [types.SET_SEARCH_RESULT](state, result) {
+    state.searchResult = result;
   },
 };
 

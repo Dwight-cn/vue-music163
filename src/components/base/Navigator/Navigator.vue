@@ -96,7 +96,8 @@
 
 <style >
   .navigator-component .list-wrapper{
-    background: none;
+    background: #f9f9f9;
+    border-bottom: 1px solid #e0e0e0;
   }
   .navigator-component .list-wrapper .scroll-content{
     display: inline-block;
@@ -106,18 +107,23 @@
   }
   .navigator-component .list-wrapper .tab-list .tab-item{
     display: inline-block;
-    line-height: 54px;
+    width: 82px;
+    text-align: center;
   }
   .navigator-component .list-wrapper .tab-list .tab-item .tab-name{
-    display: block;
+    display: inline-block;
+    height: 40px;
+    line-height: 40px;
     position: relative;
-    padding: 0 15px 0 14px;
+    padding: 0 5px;
     font-size: 14px;
-    color: #666;
+    color: #000;
+    box-sizing: border-box;
   }
   .navigator-component .list-wrapper .tab-list .tab-item .tab-name.link-active{
-    transition: all 0.2s;
-    transform: scale(1.04);
-    color: #fc9153;
+    transition: all 0.1s;
+    /*transform: scale(1.04);*/
+    color: #d63c34;
+    border-bottom: 2px solid #d63c34;
   }
 </style>
