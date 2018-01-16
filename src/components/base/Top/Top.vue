@@ -2,8 +2,12 @@
 <template>
   <div class="header">
     <search-box class="header-search" ref="searchboxref"></search-box>
-    <player-mini :playing="playing" v-if="!searching"></player-mini>
-    <span class="cancle-search" v-if="searching" @click="cancleSearch">取消</span>
+    <transition name="fade">
+      <player-mini :playing="playing" v-if="!searching"></player-mini>
+    </transition>
+    <transition name="slide">
+      <span class="cancle-search" v-if="searching" @click="cancleSearch">取消</span>
+    </transition>
   </div>
 </template>
 
@@ -62,5 +66,22 @@ export default {
     line-height: 22px;
     color: #fff;
     font-size: 16px;
+  }
+
+  /*取消按钮过渡*/
+  .slide-enter-active, .slide-leave-active{
+    transition: all .3s ease;
+  }
+  .slide-enter, .slide-leave-to{
+    transform: translateX(20px);
+    opacity: 0.5;
+  }
+
+  /*mini播放器过渡*/
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity .2s;
+  }
+  .fade-enter, .fade-leave-to {
+    opacity: 0;
   }
 </style>

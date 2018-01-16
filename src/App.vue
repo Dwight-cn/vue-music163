@@ -2,16 +2,19 @@
   <div id="app">
     <top></top>
     <router-view/>
+    <player></player>
   </div>
 </template>
 
 <script>
 import Top from '@/components/base/Top/Top';
+import Player from '@/components/base/Player/Player';
 
 export default {
   name: 'app',
   components: {
     Top,
+    Player,
   },
 };
 </script>

@@ -8,27 +8,30 @@
       <div class="tab-render-content">
         <!--单曲-->
         <scroll class="result-list songs-result" v-if="id==1">
+          <loading v-if="!searchResult[0].result.length"></loading>
           <ul>
             <li v-for="item in searchResult[0].result" :key="item.id" class="result-list-item">
-              <p class="item-name">{{ item.name }}</p>
-              <p class="item-info">
-                <span><span v-for="artist in item.artists" :key="artist.id" class="item-info-artist">{{ artist.name }}</span></span>
-                 - <span>{{ item.album.name }}</span>
-              </p>
+              <div class="result-list-item-con">
+                <h4 class="overflow-ellipsis">{{ item.name }}</h4>
+                <h5 class="overflow-ellipsis">
+                  <span><span v-for="artist in item.artists" :key="artist.id" class="item-info-artist">{{ artist.name }}</span></span>
+                  - <span>{{ item.album.name }}</span>
+                </h5>
+              </div>
             </li>
           </ul>
         </scroll>
 
         <!--歌手-->
         <scroll class="result-list artists-result" v-if="id==100">
+          <loading v-if="!searchResult[1].result.length"></loading>
           <ul>
-            <li v-for="item in searchResult[1].result" :key="item.id" class="artists-result-list-item">
-              <figure class="avatar-img">
+            <li v-for="item in searchResult[1].result" :key="item.id" class="result-list-item">
+              <figure class="result-list-item-img">
                 <img :src="item.img1v1Url" alt="">
               </figure>
-              <div class="artist-name">
-                <h4>{{ item.name }} <span v-for="i in  item.alia" :key="i">({{ i }})</span></h4>
-                
+              <div class="result-list-item-con">
+                <h4 class="overflow-ellipsis">{{ item.name }} <span v-for="i in  item.alia" :key="i">({{ i }})</span></h4>
               </div>
             </li>
           </ul>
@@ -36,15 +39,15 @@
 
         <!--专辑-->
         <scroll class="result-list albums-result" v-if="id==10">
+          <loading v-if="!searchResult[2].result.length"></loading>
           <ul>
-            <!--<li v-for="item in searchResult[2].result" :key="item.id" class="result-list-item">{{item.name}}</li>-->
-            <li v-for="item in searchResult[2].result" :key="item.id" class="artists-result-list-item albums-result-list-item">
-              <figure class="avatar-img">
+            <li v-for="item in searchResult[2].result" :key="item.id" class="result-list-item albums-result-list-item">
+              <figure class="result-list-item-img">
                 <img :src="item.blurPicUrl" alt="">
               </figure>
-              <div class="artist-name">
-                <h4>{{ item.name }}</h4>
-                <h5>{{ item.artist.name }}</h5>
+              <div class="result-list-item-con">
+                <h4 class="overflow-ellipsis">{{ item.name }}</h4>
+                <h5 class="overflow-ellipsis">{{ item.artist.name }}</h5>
               </div>
             </li>
           </ul>
@@ -52,15 +55,33 @@
 
         <!--歌单-->
         <scroll class="result-list playlists-result" v-if="id==1000">
+          <loading v-if="!searchResult[3].result.length"></loading>
           <ul>
-            <li v-for="item in searchResult[3].result" :key="item.id" class="result-list-item">{{item.name}}</li>
+            <li v-for="item in searchResult[3].result" :key="item.id" class="result-list-item">
+              <figure class="result-list-item-img">
+                <img :src="item.coverImgUrl" alt="">
+              </figure>
+              <div class="result-list-item-con">
+                <h4 class="overflow-ellipsis">{{ item.name }}</h4>
+                <h5 class="overflow-ellipsis">{{ item.trackCount }}首音乐 by {{ item.creator.nickname }}，播放{{ item.playCount }}次</h5>
+              </div>
+            </li>
           </ul>
         </scroll>
 
         <!--用户-->
         <scroll class="result-list userprofiles-result" v-if="id==1002">
+          <loading v-if="!searchResult[4].result.length"></loading>
           <ul>
-            <li v-for="item in searchResult[4].result" :key="item.id" class="result-list-item">{{item.nickname}}</li>
+            <li v-for="item in searchResult[4].result" :key="item.id" class="result-list-item user-result-list-item">
+              <figure class="result-list-item-img">
+                <img :src="item.avatarUrl" alt="">
+              </figure>
+              <div class="result-list-item-con">
+                <h4 class="overflow-ellipsis">{{ item.nickname }}</h4>
+                <h5 class="overflow-ellipsis">{{ item.signature }}</h5>
+              </div>
+            </li>
           </ul>
         </scroll>
       </div>
@@ -70,6 +91,7 @@
 <script>
 import Scroll from '@/components/base/Scroll/Scroll';
 import Navigator from '@/components/base/Navigator/Navigator';
+import Loading from '@/components/base/Loading/Loading';
 import { mapState, mapActions } from 'vuex';
 import { getSearchResult } from '@/api/search';
 
@@ -78,6 +100,7 @@ export default {
   components: {
     Scroll,
     Navigator,
+    Loading,
   },
   data() {
     return {
@@ -115,7 +138,7 @@ export default {
             id: this.id,
             data: res.data.result[nowItem.key],
           };
-          console.log(params);
+          console.log(res);
           this.setSearchResultData(params);
         });
       }
@@ -170,12 +193,12 @@ export default {
   .result-list{
     height: 100%;
   }
-  .result-list-item{
+  /*.result-list-item{
     margin-left: 10px;
     border-bottom: 1px solid #e2e3e5;
     padding: 10px 30px 10px 0;
     
-  }
+  }*/
   .item-info-artist::after{
     content: ' / ';
   }
@@ -199,55 +222,57 @@ export default {
   }
 
   /*歌手*/
-  .artists-result-list-item{
-    display: -webkit-box;
-    display: -webkit-flex;
+  .result-list-item{
     display: flex;
-    -webkit-box-align: center;
-    -webkit-align-items: center;
     align-items: center;
     height: 60px;
-    margin-left: 6px;
+    padding-left: 6px;
     box-sizing: border-box;
+    width: 100%;
   }
-  .artists-result-list-item .avatar-img, .artists-result-list-item .artist-name{
-    -webkit-box-flex: 0;
-    -webkit-flex: 0 0 auto;
+  .result-list-item .result-list-item-img{
     flex: 0 0 auto;
-    /*display: inline-block;*/
-  }
-  .artists-result-list-item .avatar-img{
     position: relative;
     width: 54px;
     height: 54px;
     margin-right: 8px;
     line-height: 0;
+    background-color: #7e7e7e;
   }
-  .artists-result-list-item .avatar-img img{
+  .result-list-item .result-list-item-img img{
     width: 100%;
   }
-  .artists-result-list-item .artist-name{
-    width: 100%;
+  .result-list-item .result-list-item-con{
     height: 100%;
     display: flex;
-    -webkit-box-align: center;
-    -webkit-align-items: center;
-    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1 1 auto;
     border-bottom: 1px solid #e2e3e5;
+    overflow: hidden;
+    padding-right: 30px;
   }
-  .artists-result-list-item .artist-name span{
+  .result-list-item .result-list-item-con span{
     color: #9c9d9f;
   }
-  .artists-result-list-item .artist-name h4{
+  .result-list-item .result-list-item-con h4{
     font-size: 14px;
     font-weight: normal;
+    color: #000;
+    line-height: 1.5;
+  }
+  .result-list-item .result-list-item-con h5{
+    font-size: 10px;
+    font-weight: normal;
+    color: #9c9d9f;
+    line-height: 1.5;
   }
 
-  /*歌单*/
-  .albums-result-list-item .avatar-img{
+  /*专辑*/
+  .albums-result-list-item .result-list-item-img{
     margin-right: 20px;
   }
-  .albums-result-list-item .avatar-img::after{
+  .albums-result-list-item .result-list-item-img::after{
     content: "";
     position: absolute;
     top: 2px;
@@ -257,5 +282,11 @@ export default {
     background-repeat: no-repeat;
     background-size: 100% 100%;
     background-image: url(./albums-bg.png);
+  }
+
+  /*用户*/
+  .user-result-list-item>figure{
+    border-radius: 50%;
+    overflow: hidden;
   }
 </style>

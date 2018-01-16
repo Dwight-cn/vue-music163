@@ -1,6 +1,8 @@
 
 export const SET_PLAYING = 'SET_PLAYING';
 
+export const SET_PLAYER_SHOW = 'SET_PLAYER_SHOW';
+
 export const SET_SEARCHING = 'SET_SEARCHING';
 
 export const SET_SEARCHING_FOCUS = 'SET_SEARCHING_FOCUS';

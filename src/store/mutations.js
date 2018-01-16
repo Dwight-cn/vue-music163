@@ -4,6 +4,9 @@ const mutations = {
   [types.SET_PLAYING](state, flag) {
     state.playing = flag;
   },
+  [types.SET_PLAYER_SHOW](state, flag) {
+    state.playerShow = flag;
+  },
   [types.SET_SEARCHING](state, flag) {
     state.searching = flag;
   },

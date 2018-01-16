@@ -1,9 +1,9 @@
 <!-- 搜索框组件 -->
 <template>
   <div class="search-box">
-    <i class="icon-search"></i>
+    <i class="iconfont icon-search"></i>
     <input type="search" v-model="keywords" placeholder="搜索音乐、歌手、歌词" @focus="searchFocus" @click="searchFocus" @blur="searchBlur" @keyup.enter="searchEnter" ref="searchinput">
-    <i class="icon-x-circle" v-if="keywords !== ''" @click="clearKeywords"></i>
+    <i class="iconfont icon-close" v-if="keywords !== ''" @click="clearKeywords"></i>
   </div>
 </template>
 
@@ -84,7 +84,7 @@ export default {
     top: 0;
     line-height: 30px;
   }
-  .icon-x-circle{
+  .icon-close{
     font-size: 14px;
     color: #d6d6d6;
     position: absolute;

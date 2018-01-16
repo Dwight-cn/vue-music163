@@ -1,46 +1,46 @@
 <template>
   <div ref="wrapper" class="list-wrapper">
-  <div class="scroll-content">
-    <div ref="listWrapper">
-    <slot>
-      <ul class="list-content">
-      <li @click="clickItem($event,item)" class="list-item" v-for="item in data" :key="item">{{item}}</li>
-      </ul>
-    </slot>
+    <div class="scroll-content">
+      <div ref="listWrapper">
+      <slot>
+        <ul class="list-content">
+        <li @click="clickItem($event,item)" class="list-item" v-for="item in data" :key="item">{{item}}</li>
+        </ul>
+      </slot>
+      </div>
+      <slot name="pullup"
+        :pullUpLoad="pullUpLoad"
+        :isPullUpLoad="isPullUpLoad"
+      >
+      <div class="pullup-wrapper" v-if="pullUpLoad">
+        <div class="before-trigger" v-if="!isPullUpLoad">
+        <span>{{pullUpTxt}}</span>
+        </div>
+        <div class="after-trigger" v-else>
+        <loading></loading>
+        </div>
+      </div>
+      </slot>
     </div>
-    <slot name="pullup"
-      :pullUpLoad="pullUpLoad"
-      :isPullUpLoad="isPullUpLoad"
+    <slot name="pulldown"
+        :pullDownRefresh="pullDownRefresh"
+        :pullDownStyle="pullDownStyle"
+        :beforePullDown="beforePullDown"
+        :isPullingDown="isPullingDown"
+        :bubbleY="bubbleY"
     >
-    <div class="pullup-wrapper" v-if="pullUpLoad">
-      <div class="before-trigger" v-if="!isPullUpLoad">
-      <span>{{pullUpTxt}}</span>
+      <div ref="pulldown" class="pulldown-wrapper" :style="pullDownStyle" v-if="pullDownRefresh">
+      <div class="before-trigger" v-if="beforePullDown">
+        <bubble :y="bubbleY"></bubble>
       </div>
       <div class="after-trigger" v-else>
-      <loading></loading>
+        <div v-if="isPullingDown" class="loading">
+        <loading></loading>
+        </div>
+        <div v-else><span>{{refreshTxt}}</span></div>
       </div>
-    </div>
+      </div>
     </slot>
-  </div>
-  <slot name="pulldown"
-      :pullDownRefresh="pullDownRefresh"
-      :pullDownStyle="pullDownStyle"
-      :beforePullDown="beforePullDown"
-      :isPullingDown="isPullingDown"
-      :bubbleY="bubbleY"
-  >
-    <div ref="pulldown" class="pulldown-wrapper" :style="pullDownStyle" v-if="pullDownRefresh">
-    <div class="before-trigger" v-if="beforePullDown">
-      <bubble :y="bubbleY"></bubble>
-    </div>
-    <div class="after-trigger" v-else>
-      <div v-if="isPullingDown" class="loading">
-      <loading></loading>
-      </div>
-      <div v-else><span>{{refreshTxt}}</span></div>
-    </div>
-    </div>
-  </slot>
   </div>
 </template>
 
