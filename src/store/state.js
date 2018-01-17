@@ -1,4 +1,4 @@
-import { searchResultDefault } from './default';
+import { searchResultDefault, playMode } from './default';
 
 const state = {
   // 播放器播放状态
@@ -17,6 +17,14 @@ const state = {
   searchHistory: [],
   // 搜索结果
   searchResult: searchResultDefault,
+  // 播放歌曲列表
+  playlist: [],
+  // 顺序播放列表
+  sequenceList: [],
+  // 当前播放歌曲索引
+  currentIndex: -1,
+  // 播放模式
+  mode: playMode.sequence,
 };
 
 export default state;

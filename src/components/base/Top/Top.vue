@@ -3,7 +3,9 @@
   <div class="header">
     <search-box class="header-search" ref="searchboxref"></search-box>
     <transition name="fade">
-      <player-mini :playing="playing" v-if="!searching"></player-mini>
+      <div @click="showPlayer">
+        <player-mini :playing="playing" v-if="!searching"></player-mini>
+      </div>
     </transition>
     <transition name="slide">
       <span class="cancle-search" v-if="searching" @click="cancleSearch">取消</span>
@@ -14,7 +16,7 @@
 <script>
 import SearchBox from '@/components/base/SearchBox/searchBox';
 import PlayerMini from '@/components/base/PlayerMini/PlayerMini';
-import { mapState } from 'vuex';
+import { mapState, mapMutations } from 'vuex';
 
 export default {
   components: {
@@ -37,6 +39,12 @@ export default {
     cancleSearch() {
       this.$router.push('/');
     },
+    showPlayer() {
+      this.setPlayerShow(true);
+    },
+    ...mapMutations({
+      setPlayerShow: 'SET_PLAYER_SHOW',
+    }),
   },
   watch: {
     searching: function searching(val) {
@@ -73,7 +81,7 @@ export default {
     transition: all .3s ease;
   }
   .slide-enter, .slide-leave-to{
-    transform: translateX(20px);
+    transform: translateX(100%);
     opacity: 0.5;
   }
 

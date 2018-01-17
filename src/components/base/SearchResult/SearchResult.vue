@@ -10,11 +10,11 @@
         <scroll class="result-list songs-result" v-if="id==1">
           <loading v-if="!searchResult[0].result.length"></loading>
           <ul>
-            <li v-for="item in searchResult[0].result" :key="item.id" class="result-list-item">
+            <li v-for="(item,index) in searchResult[0].result" :key="item.id" class="result-list-item" @click="_insertSong(index)">
               <div class="result-list-item-con">
                 <h4 class="overflow-ellipsis">{{ item.name }}</h4>
                 <h5 class="overflow-ellipsis">
-                  <span><span v-for="artist in item.artists" :key="artist.id" class="item-info-artist">{{ artist.name }}</span></span>
+                  <span><span v-for="artist in item.artists" :key="artist.id+index" class="item-info-artist">{{ artist.name }}</span></span>
                   - <span>{{ item.album.name }}</span>
                 </h5>
               </div>
@@ -143,9 +143,16 @@ export default {
         });
       }
     },
+    // 向播放列表添加歌曲
+    _insertSong(songIndex) {
+      const song = this.searchResult[0].result[songIndex];
+      console.log(song);
+      this.insertSong(song);
+    },
     ...mapActions([
       'setSearchResultData',
       'clearSearchResultData',
+      'insertSong',
     ]),
   },
   created() {
