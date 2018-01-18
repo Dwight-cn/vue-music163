@@ -18,7 +18,7 @@
 </template>
 
 <script>
-const BTN_WIDTH = 16;
+const BTN_WIDTH = 8;
 
 export default {
   components: {},
@@ -38,10 +38,10 @@ export default {
     // 播放进度
     percent(newVal) {
       // 拖动的时候不要 watch
+      // console.log(newVal);
       if (newVal >= 0 && !this.touch.init) {
         const barWidth = this.$refs.barRef.clientWidth - BTN_WIDTH;
         const offsetWidth = newVal * barWidth;
-
         this._move(offsetWidth);
       }
     },
@@ -106,36 +106,33 @@ export default {
 
 <style scoped>
 .my-progress-bar {
-  height: 30px;
+  height: 16px;
 }
 .my-progress-bar .bar-inner {
   position: relative;
-  top: 13px;
-  height: 4px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.3);
+  top: 7px;
+  height: 2px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.3);
 }
 .my-progress-bar .bar-inner .progress {
   position: absolute;
   height: 100%;
-  background: #fff;
+  background: #da3c33;
 }
 .my-progress-bar .bar-inner  .progress-btn-wrapper {
   position: absolute;
-  left: -8px;
-  top: -13px;
-  width: 30px;
-  height: 30px; 
+  left: -7px;
+  top: -7px;
+  width: 16px;
+  height: 16px;
 }
 .my-progress-bar .bar-inner  .progress-btn-wrapper .progress-btn {
   position: relative;
-  top: 7px;
-  left: 7px;
-  box-sizing: border-box;
-  width: 16px;
-  height: 16px;
-  border: 3px solid #000;
+  width: 4px;
+  height: 4px;
+  border: 6px solid #fff;
   border-radius: 50%;
-  background: #f00;
+  background: #da3c33;
 }
 </style>

@@ -99,7 +99,7 @@ export default {
     },
     // 播放进度
     percent() {
-      return this.currentTime / this.currentSong.duration;
+      return this.currentTime / this.currentSong.duration * 1000;
     },
   },
   methods: {
@@ -203,7 +203,7 @@ export default {
     },
     // props down，当进度改变了
     percentChange(newPercent) {
-      const currentTime = this.currentSong.duration * newPercent;
+      const currentTime = this.currentSong.duration/1000 * newPercent;
       this.$refs.audioRef.currentTime = currentTime;
 
       // 进度改变后自动播放
@@ -326,7 +326,7 @@ export default {
   .player-ctrl>li{
     flex: 1;
     line-height: 50px;
-    color: #fff;
+    color: rgba(255, 255, 255, 0.8);
     text-align: center;
   }
   .player-crtl-1 i{
