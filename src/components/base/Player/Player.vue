@@ -13,14 +13,27 @@
           </div>
         </div>
         <div class="player-middle">
-
+          <!--唱片-->
+          <div class="cd-wrapper" ref="cdRef">
+            <img src="./img/cd-stylus.png" alt="" class="cd-stylus" :class="{playing: playing}">
+            <div class="cd" :class="{playing: playing}">
+              <img src="./img/cd.png" alt="">
+              <div class="cd-img">
+                <img :src="songCover" alt="">
+              </div>
+            </div>
+          </div>
         </div>
         <div class="player-bottom">
           <!--进度条-->
-          <div>
+          <div class="progress-wrapper">
+            <span class="time time-l">{{ currentTime  | format }}</span>
+
             <div class="progress-bar-wrapper">
               <progress-bar :percent="percent" @percentChange="percentChange"></progress-bar>
             </div>
+
+            <span class="time time-r">{{ currentSong.duration / 1000 | format }}</span>
           </div>
           <!--控制区-->
           <ul class="player-ctrl">
@@ -101,6 +114,18 @@ export default {
     percent() {
       return this.currentTime / this.currentSong.duration * 1000;
     },
+  },
+  //过滤器
+  filters: {
+    // 格式化时间
+    format: value => {
+      if (!value) return '00:00'
+      const timestamp = Math.floor(value)
+
+      let minute = (Math.floor(timestamp / 60)).toString().padStart(2, '0')
+      let second = (timestamp % 60).toString().padStart(2, '0')
+      return `${minute}:${second}`;
+    }
   },
   methods: {
     // 获取歌曲播放链接
@@ -203,7 +228,7 @@ export default {
     },
     // props down，当进度改变了
     percentChange(newPercent) {
-      const currentTime = this.currentSong.duration/1000 * newPercent;
+      const currentTime = this.currentSong.duration / 1000 * newPercent;
       this.$refs.audioRef.currentTime = currentTime;
 
       // 进度改变后自动播放
@@ -214,6 +239,9 @@ export default {
      /* if (this.currentLyric) {
         this.currentLyric.seek(currentTime * 1000);
       } */
+    },
+    pauseCD() {
+
     },
     ...mapMutations({
       setPlayerShow: 'SET_PLAYER_SHOW',
@@ -310,7 +338,75 @@ export default {
 
   .player-middle{
     flex: 1 1 auto;
+    position: relative;
     /*background-color: #f00;*/
+  }
+  .player-middle .cd-wrapper{
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    /*display: flex;*/
+    /*justify-content: center;*/
+  }
+  .cd-wrapper .cd-stylus{
+    position: absolute;
+    width: 30%;
+    left: 50%;
+    top: 0;
+    margin-top: -3%;
+    margin-left: -5%;
+    z-index: 2;
+    transition: all 0.5s;
+    transform-origin: 3% 5%;
+    transform: rotate(-25deg);
+  }
+  .cd-wrapper .cd-stylus.playing{
+    transform: rotate(0deg);
+  }
+  .cd-wrapper .cd{
+    width: 80%;
+    margin: 20% auto 0;
+    position: relative;
+    animation: round 12s linear 0s both infinite; 
+    animation-play-state: paused;
+    -webkit-animation-play-state:paused;
+  }
+  .cd-wrapper .cd>img{
+    width: 100%;
+  }
+  .cd-wrapper .cd .cd-img{
+    width: 63%;
+    height: 63%;
+    position: absolute;
+    left: 18.5%;
+    top: 18.5%;
+    border-radius: 50%;
+    overflow: hidden;
+    background: url('img/cd-default.png') no-repeat;
+    background-size: 100% 100%;
+    overflow: hidden;
+  }
+  .cd-wrapper .cd .cd-img img{
+    width: 100%;
+    height: 100%;
+  }
+  .cd-wrapper .cd::before{
+    content: " ";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: url(img/cd-light.png) no-repeat;
+    background-size: 100% 100%;
+    z-index: 2;
+  }
+  .cd-wrapper .cd.playing{
+    animation-play-state: running;
+    -webkit-animation-play-state: running;
   }
 
   .player-bottom{
@@ -319,6 +415,7 @@ export default {
     /*background: #0f0;*/
   }
   .player-ctrl{
+    margin-top: 32px;
     width: 100%;
     height: 50px;
     display: flex;
@@ -342,6 +439,23 @@ export default {
     font-size: 30px;
   }
 
+  /*进度条*/
+  .progress-wrapper{
+    display: flex;
+    width: 100%;
+    margin: 10px auto;
+  }
+  .progress-wrapper .time{
+    flex: 0 0 auto;
+    font-size: 10px;
+    line-height: 16px;
+    color: rgba(255, 255, 255, 0.8);
+    padding: 0 1em;
+  }
+  .progress-bar-wrapper{
+    flex: 1 1 auto;
+  }
+
   /*播放器过渡*/
   .slide-enter-active, .slide-leave-active{
     transition: all .3s ease;
@@ -349,5 +463,12 @@ export default {
   .slide-enter, .slide-leave-to{
     transform: translateX(100%);
     opacity: 0.5;
+  }
+
+  /*转动动画*/
+  @keyframes round {
+    100% {
+      transform: rotate(1turn);
+    }
   }
 </style>
