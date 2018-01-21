@@ -1,10 +1,14 @@
 import * as types from './mutations-types';
+import { saveSearchHistory } from '../assets/js/storage';
 
 function findSongIndex(list, song) {
   return list.findIndex((item) => {
     return item.id && item.id === song.id;
   });
 }
+// function findSearchIndex(params) {
+
+// }
 
 // 设置搜索结果
 export const setSearchResultData = ({ commit, state }, { id, data }) => {
@@ -23,6 +27,14 @@ export const clearSearchResultData = ({ commit, state }) => {
     item.result = [];
   });
   commit(types.SET_SEARCH_RESULT, searchResultcopy);
+};
+
+// 添加搜索历史
+export const addSearchHistory = ({ commit, state }, keywords) => {
+  const searchHistory = [...state.searchHistory];
+  searchHistory.push(keywords);
+  saveSearchHistory(searchHistory);
+  commit(types.SET_SEARCH_HISTORY, searchHistory);
 };
 
 // 向播放列表添加歌曲

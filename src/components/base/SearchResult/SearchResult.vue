@@ -14,7 +14,7 @@
               <div class="result-list-item-con">
                 <h4 class="overflow-ellipsis">{{ item.name }}</h4>
                 <h5 class="overflow-ellipsis">
-                  <span><span v-for="artist in item.artists" :key="artist.id+index" class="item-info-artist">{{ artist.name }}</span></span>
+                  <span><span v-for="artist in item.artists" :key="`${index}attist${artist.name}`" class="item-info-artist">{{ artist.name }}</span></span>
                   - <span>{{ item.album.name }}</span>
                 </h5>
               </div>
@@ -153,6 +153,7 @@ export default {
       'setSearchResultData',
       'clearSearchResultData',
       'insertSong',
+      'addSearchHistory',
     ]),
   },
   created() {
@@ -165,6 +166,7 @@ export default {
       this.currentTabIndex = parseInt(this.id, 10);
     }, 20);
     this._getSearchResult();
+    this.addSearchHistory(this.searchKeyWords);
   },
   beforeDestroy() {
     this.clearSearchResultData();
@@ -219,7 +221,7 @@ export default {
   }
   .item-info{
     font-size: 10px;
-    color: #7e7e7e;
+    color: #e2e3e5;
   }
   .item-name, .item-info{
     line-height: 1;

@@ -1,4 +1,5 @@
 import { searchResultDefault, playMode } from './default';
+import { loadSearchHistory } from '../assets/js/storage';
 
 const state = {
   // 播放器播放状态
@@ -14,7 +15,7 @@ const state = {
   // 搜索建议
   searchSuggest: {},
   // 搜索历史
-  searchHistory: [],
+  searchHistory: loadSearchHistory(),
   // 搜索结果
   searchResult: searchResultDefault,
   // 播放歌曲列表

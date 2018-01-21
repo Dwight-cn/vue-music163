@@ -4,6 +4,9 @@
     <!--搜索历史-->
     <scroll class="search-hidtory-scroll">
       <p class="search-label search-hidtory-label">搜索历史</p>
+      <ul>
+        <li v-for="(item, index) in searchHistory" :key="`searchhistory${index}`">{{ item }}</li>
+      </ul>
     </scroll>
 
     <!--搜索建议-->
@@ -62,6 +65,7 @@ export default {
       'searchSuggest',
       'searchResult',
       'searchFocus',
+      'searchHistory',
     ]),
   },
   methods: {

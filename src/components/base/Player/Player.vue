@@ -57,7 +57,7 @@
       </div>
 
       <!-- 播放器 -->
-      <audio ref="audioRef" :src="currentSongUrl" @play="canplay" @error="error" @timeupdate="timeupdate">Your browser does not support the audio element.</audio>
+      <audio ref="audioRef" :src="currentSongUrl" @play="ready" @error="error" @timeupdate="timeupdate" @ended="ended">Your browser does not support the audio element.</audio>
     </div>
   </transition>
 </template>
@@ -66,6 +66,7 @@
 import ProgressBar from '@/components/base/ProgressBar/ProgressBar';
 import { mapState, mapGetters, mapMutations } from 'vuex';
 import { getSongUrl, getSongUrlDetail } from '@/api/song';
+import { playMode } from '@/store/default';
 
 export default {
   name: 'HelloWorld',
@@ -79,7 +80,7 @@ export default {
       // 歌曲封面
       songCover: '',
       // 标志位。歌曲已缓存好，可以播放了
-      songCanplay: false,
+      songReady: false,
       // 当前播放时间
       currentTime: 0,
     };
@@ -115,17 +116,17 @@ export default {
       return this.currentTime / this.currentSong.duration * 1000;
     },
   },
-  //过滤器
+  // 过滤器
   filters: {
     // 格式化时间
-    format: value => {
-      if (!value) return '00:00'
-      const timestamp = Math.floor(value)
+    format: (value) => {
+      if (!value) return '00:00';
+      const timestamp = Math.floor(value);
 
-      let minute = (Math.floor(timestamp / 60)).toString().padStart(2, '0')
-      let second = (timestamp % 60).toString().padStart(2, '0')
+      const minute = (Math.floor(timestamp / 60)).toString().padStart(2, '0');
+      const second = (timestamp % 60).toString().padStart(2, '0');
       return `${minute}:${second}`;
-    }
+    },
   },
   methods: {
     // 获取歌曲播放链接
@@ -154,15 +155,21 @@ export default {
       }, 1000);
     },
     // audio API canplay 当浏览器可以播放音频/视频时
-    canplay() {
-      this.songCanplay = true;
-      console.log('canplay');
+    ready() {
+      this.songReady = true;
       // 把当前歌曲写进 vuex 最近播放 playHistory 中
       // this.saveplayHistory(this.currentSong);
     },
     // audio API error 当在音频/视频加载期间发生错误时
     error() {
-      this.songCanplay = true;
+      this.songReady = true;
+    },
+    ended() {
+      if (this.mode === playMode.loop) {
+        this.loopSong();
+      } else {
+        this.nextSong();
+      }
     },
     // HTML5 Audio/Video 属性 currentTime  设置或返回音频/视频中的当前播放位置（以秒计）
     timeupdate(e) {
@@ -170,7 +177,7 @@ export default {
     },
     // 播放按钮
     togglePlaying() {
-      if (!this.songCanplay) {
+      if (!this.songReady) {
         return;
       }
       this.setPlaying(!this.playing);
@@ -181,23 +188,27 @@ export default {
     },
     // 上一首
     prevSong() {
-      if (!this.songCanplay) {
+      if (!this.songReady) {
         return;
       }
-
-      let index = this.currentIndex - 1;
-      if (index === -1) {
-        index = this.playlist.length - 1;
-      }
-      this.setCurrentIndex(index);
-      if (!this.playing) {
-        this.togglePlaying();
-        this.songCanplay = false;
+      // 如果播放列表只要一条数据
+      if (this.playlist.length === 1) {
+        this.loopSong();
+      } else {
+        let index = this.currentIndex - 1;
+        if (index === -1) {
+          index = this.playlist.length - 1;
+        }
+        this.setCurrentIndex(index);
+        if (!this.playing) {
+          this.togglePlaying();
+          this.songReady = false;
+        }
       }
     },
     // 下一首
     nextSong() {
-      if (!this.songCanplay) {
+      if (!this.songReady) {
         return;
       }
       // 如果播放列表只要一条数据
@@ -205,7 +216,6 @@ export default {
         this.loopSong();
       } else {
         let index = this.currentIndex + 1;
-        console.log(this.currentIndex);
         if (index === this.playlist.length) {
           index = 0;
         }
@@ -214,13 +224,14 @@ export default {
           this.togglePlaying();
         }
       }
-      this.songCanplay = false;
+      this.songReady = false;
     },
     // 单曲循环
     loopSong() {
       this.$refs.audioRef.currentTime = 0;
-      this.setPlaying(true);
-      this.songCanplay = true;
+      this.$refs.audioRef.play();
+      // this.setPlaying(true);
+      // this.songReady = true;
       // 单曲循环时，歌词也单曲循环
       // if (this.currentLyric) {
       //   this.currentLyric.seek(0);
