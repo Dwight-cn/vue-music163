@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import { mapMutations } from 'vuex';
+import { mapState, mapMutations } from 'vuex';
 
 export default {
   data() {
@@ -17,7 +17,9 @@ export default {
     };
   },
   computed: {
-
+    ...mapState([
+      'searchKeyWords',
+    ]),
   },
   methods: {
     // 清空搜索框
@@ -49,8 +51,11 @@ export default {
   },
   watch: {
     // 关键字改变时
-    keywords: function keywords(val) {
+    keywords(val) {
       this.setSearchKeyWords(val.trim());
+    },
+    searchKeyWords(val) {
+      this.keywords = val;
     },
   },
 };

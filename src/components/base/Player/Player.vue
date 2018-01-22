@@ -9,7 +9,7 @@
           <i class="iconfont icon-back" @click="hidePlayer"></i>
           <div class="song-name">
             <h4 class="overflow-ellipsis">{{ currentSong.name }}</h4>
-            <h5 class="overflow-ellipsis"><span v-for="a in currentSong.artists" :key="a.id">{{a.name}}</span></h5>
+            <h5 class="overflow-ellipsis"><span v-for="(a, index) in currentSong.artists" :key="`title${index}-${a.id}`"> {{a.name}} </span> </h5>
           </div>
         </div>
         <div class="player-middle">
@@ -38,7 +38,7 @@
           <!--控制区-->
           <ul class="player-ctrl">
             <li class="player-crtl-1">
-              <i class="iconfont" :class="iconMode"></i>
+              <i class="iconfont" :class="iconMode" @click="changeMode"></i>
             </li>
             <li class="player-crtl-2">
               <i class="iconfont icon-prev" @click="prevSong"></i>
@@ -49,10 +49,33 @@
             <li class="player-crtl-4">
               <i class="iconfont icon-next" @click="nextSong"></i>
             </li>
-            <li class="player-crtl-5">
+            <li class="player-crtl-5" @click="openPlaylist">
               <i class="iconfont icon-playlist"></i>
             </li>
           </ul>
+        </div>
+      </div>
+
+      <!--播放列表-->
+      <div class="player-playlist-wrap" :class="{show: playlistShow}"  @click="closePlaylist">
+        <div class="player-playlist" @click.stop>
+          <div class="player-playlist-top"  @click="changeMode">
+            <i class="iconfont" :class="iconMode"></i>
+            <span>{{ modeText }}</span>
+          </div>
+          <scroll class="player-playlist-scroll">
+            <ul>
+              <li v-for="(item, index) in playlist" :key="`${index}-${item.id}`" class="player-playlist-item" :class="{playing: index == currentIndex}">
+                <p class="overflow-ellipsis" @click="playSong(index)">
+                  <i class="iconfont icon-notification"></i>
+                  {{ item.name }}
+                  <span> - <span v-for="artist in item.artists" :key="`${item.id}attist${artist.name}`" class="item-info-artist">{{ artist.name }}</span></span>
+                </p>
+                <i class="iconfont icon-close2" @click="deleteSong(item)"></i>
+              </li>
+            </ul>
+          </scroll>
+          <div class="playlist-close-btn" @click="closePlaylist">关闭</div>
         </div>
       </div>
 
@@ -64,7 +87,8 @@
 
 <script>
 import ProgressBar from '@/components/base/ProgressBar/ProgressBar';
-import { mapState, mapGetters, mapMutations } from 'vuex';
+import Scroll from '@/components/base/Scroll/Scroll';
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 import { getSongUrl, getSongUrlDetail } from '@/api/song';
 import { playMode } from '@/store/default';
 
@@ -72,6 +96,7 @@ export default {
   name: 'HelloWorld',
   components: {
     ProgressBar,
+    Scroll,
   },
   data() {
     return {
@@ -83,6 +108,8 @@ export default {
       songReady: false,
       // 当前播放时间
       currentTime: 0,
+      // 播放列表显示
+      playlistShow: false,
     };
   },
   computed: {
@@ -92,6 +119,7 @@ export default {
       'playerShow',
       'mode',
       'playlist',
+      'sequenceList',
       'currentIndex',
     ]),
     ...mapGetters([
@@ -110,6 +138,18 @@ export default {
         cls = '';
       }
       return cls;
+    },
+    modeText() {
+      switch (this.mode) {
+        case 0:
+          return '列表循环';
+        case 1:
+          return '单曲循环';
+        case 2:
+          return '随机播放';
+        default:
+          return '播放列表';
+      }
     },
     // 播放进度
     percent() {
@@ -162,7 +202,8 @@ export default {
     },
     // audio API error 当在音频/视频加载期间发生错误时
     error() {
-      this.songReady = true;
+      this.songReady = false;
+      console.log('发生错误，无法播放！');
     },
     ended() {
       if (this.mode === playMode.loop) {
@@ -226,12 +267,16 @@ export default {
       }
       this.songReady = false;
     },
+    // 播放列表在指定歌曲
+    playSong(index) {
+      if (this.currentIndex !== index) {
+        this.setCurrentIndex(index);
+      }
+    },
     // 单曲循环
     loopSong() {
       this.$refs.audioRef.currentTime = 0;
       this.$refs.audioRef.play();
-      // this.setPlaying(true);
-      // this.songReady = true;
       // 单曲循环时，歌词也单曲循环
       // if (this.currentLyric) {
       //   this.currentLyric.seek(0);
@@ -251,14 +296,55 @@ export default {
         this.currentLyric.seek(currentTime * 1000);
       } */
     },
-    pauseCD() {
+    // 打开播放列表
+    openPlaylist() {
+      this.playlistShow = true;
+    },
+    // 关闭播放列表
+    closePlaylist() {
+      this.playlistShow = false;
+    },
+    // 改变播放模式
+    changeMode() {
+      const mode = (this.mode + 1) % 3;
+      this.setMode(mode);
 
+      let newList = null;
+      if (mode === 2) {
+        newList = this.shuffle(this.sequenceList);
+      } else {
+        newList = this.sequenceList;
+      }
+
+      // 调整当前歌曲的索引
+      const index = newList.findIndex((item) => {
+        return item.id === this.currentSong.id;
+      });
+      this.setCurrentIndex(index);
+      this.setPlayList(newList);
+    },
+    // 洗牌函数，用于生成随机播放列表
+    shuffle(arr, flag = false) {
+      let newArr = [];
+      flag ? (newArr = arr) : (newArr = [...arr]);
+      for (let i = 0; i < newArr.length; i++) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const temp = newArr[i];
+        newArr[i] = newArr[j];
+        newArr[j] = temp;
+      }
+      return newArr;
     },
     ...mapMutations({
       setPlayerShow: 'SET_PLAYER_SHOW',
       setPlaying: 'SET_PLAYING',
       setCurrentIndex: 'SET_CURRENT_INDEX',
+      setMode: 'SET_MODE',
+      setPlayList: 'SET_PLAYLIST',
     }),
+    ...mapActions([
+      'deleteSong',
+    ]),
   },
   created() {
 
@@ -271,6 +357,8 @@ export default {
       console.log(newVal);
       // 播放列表没有歌曲就退出
       if (!newVal.id) {
+        this.songCover = '';
+        this.songUrl = '';
         return;
       }
       this._getSongUrl(newVal.id);
@@ -282,6 +370,11 @@ export default {
       this.$nextTick(() => {
         newVal ? audio.play() : audio.pause();
       });
+    },
+    playlist(val) {
+      if (val.length === 0) {
+        this.songReady = false;
+      }
     },
   },
 };
@@ -371,7 +464,7 @@ export default {
     margin-left: -5%;
     z-index: 2;
     transition: all 0.5s;
-    transform-origin: 3% 5%;
+    transform-origin: 16% 5% 0;
     transform: rotate(-25deg);
   }
   .cd-wrapper .cd-stylus.playing{
@@ -387,13 +480,15 @@ export default {
   }
   .cd-wrapper .cd>img{
     width: 100%;
+    position: relative;
+    z-index: 2;
   }
   .cd-wrapper .cd .cd-img{
-    width: 63%;
-    height: 63%;
+    width: 64%;
+    height: 64%;
     position: absolute;
-    left: 18.5%;
-    top: 18.5%;
+    left: 18%;
+    top: 18%;
     border-radius: 50%;
     overflow: hidden;
     background: url('img/cd-default.png') no-repeat;
@@ -465,6 +560,86 @@ export default {
   }
   .progress-bar-wrapper{
     flex: 1 1 auto;
+  }
+
+  /*播放列表*/
+  .player-playlist-wrap{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9;
+    font-size: 16px;
+    display: none;
+  }
+  .player-playlist-wrap.show{
+    display: block;
+  }
+  .player-playlist{
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    max-height: 60%;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #000;
+    transition: 1s all;
+    transform: translateY(100%);
+  }
+  .player-playlist-wrap.show .player-playlist{
+    transform: translateY(0);
+  }
+  .player-playlist-top{
+    padding: 10px;
+  }
+  .player-playlist-scroll{
+    height: 100%;
+  }
+  .player-playlist-item{
+    display: flex;
+    align-items: center;
+    height: 42px;
+    margin-left: 6px;
+    box-sizing: border-box;
+    border-bottom: 1px solid #e2e3e5;
+  }
+  .player-playlist-item:last-child{
+    border: none;
+  }
+  .player-playlist-item>p{
+    flex: 1 1 auto;
+    padding: 0 6px;
+    line-height: 1;
+  }
+  .player-playlist-item .icon-notification{
+    display: none;
+  }
+  .player-playlist-item.playing .icon-notification{
+    display: inline;
+  }
+  .player-playlist-item.playing>p,.player-playlist-item.playing>p>span{
+    color: #d63c34;
+  }
+  .player-playlist-item>p>span{
+    font-size: 12px;
+    color: #9c9d9f;
+  }
+  .player-playlist-item>p .item-info-artist::after{
+    content: ' / ';
+  }
+  .player-playlist-item>p .item-info-artist:last-child::after{
+    content: '';
+  }
+  .player-playlist-item .icon-close2{
+    padding: 0 10px;
+  }
+  .playlist-close-btn{
+    line-height: 55px;
+    text-align: center;
+    font-size: 16px;
+    border-top: 1px solid #e2e3e5;
   }
 
   /*播放器过渡*/

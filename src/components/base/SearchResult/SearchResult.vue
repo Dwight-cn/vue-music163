@@ -8,9 +8,8 @@
       <div class="tab-render-content">
         <!--单曲-->
         <scroll class="result-list songs-result" v-if="id==1">
-          <loading v-if="!searchResult[0].result.length"></loading>
           <ul>
-            <li v-for="(item,index) in searchResult[0].result" :key="item.id" class="result-list-item" @click="_insertSong(index)">
+            <li v-for="(item,index) in searchResult[0].result" :key="item.id" class="result-list-item" @click="_insertSong(item)">
               <div class="result-list-item-con">
                 <h4 class="overflow-ellipsis">{{ item.name }}</h4>
                 <h5 class="overflow-ellipsis">
@@ -20,6 +19,7 @@
               </div>
             </li>
           </ul>
+          <loading v-if="!searchResult[0].result.length"></loading>
         </scroll>
 
         <!--歌手-->
@@ -27,8 +27,8 @@
           <loading v-if="!searchResult[1].result.length"></loading>
           <ul>
             <li v-for="item in searchResult[1].result" :key="item.id" class="result-list-item">
-              <figure class="result-list-item-img">
-                <img :src="item.img1v1Url" alt="">
+              <figure class="result-list-item-img" :style="`background-image:url(${item.img1v1Url})`">
+                <!--<img :src="item.img1v1Url" alt="">-->
               </figure>
               <div class="result-list-item-con">
                 <h4 class="overflow-ellipsis">{{ item.name }} <span v-for="i in  item.alia" :key="i">({{ i }})</span></h4>
@@ -42,8 +42,8 @@
           <loading v-if="!searchResult[2].result.length"></loading>
           <ul>
             <li v-for="item in searchResult[2].result" :key="item.id" class="result-list-item albums-result-list-item">
-              <figure class="result-list-item-img">
-                <img :src="item.blurPicUrl" alt="">
+              <figure class="result-list-item-img" :style="`background-image:url(${item.blurPicUrl})`">
+                <!--<img :src="item.blurPicUrl" alt="">-->
               </figure>
               <div class="result-list-item-con">
                 <h4 class="overflow-ellipsis">{{ item.name }}</h4>
@@ -58,8 +58,8 @@
           <loading v-if="!searchResult[3].result.length"></loading>
           <ul>
             <li v-for="item in searchResult[3].result" :key="item.id" class="result-list-item">
-              <figure class="result-list-item-img">
-                <img :src="item.coverImgUrl" alt="">
+              <figure class="result-list-item-img" :style="`background-image:url(${item.coverImgUrl})`">
+                <!--<img :src="item.coverImgUrl" alt="">-->
               </figure>
               <div class="result-list-item-con">
                 <h4 class="overflow-ellipsis">{{ item.name }}</h4>
@@ -74,8 +74,8 @@
           <loading v-if="!searchResult[4].result.length"></loading>
           <ul>
             <li v-for="item in searchResult[4].result" :key="item.id" class="result-list-item user-result-list-item">
-              <figure class="result-list-item-img">
-                <img :src="item.avatarUrl" alt="">
+              <figure class="result-list-item-img" :style="`background-image:url(${item.avatarUrl})`">
+                <!--<img :src="item.avatarUrl" alt="">-->
               </figure>
               <div class="result-list-item-con">
                 <h4 class="overflow-ellipsis">{{ item.nickname }}</h4>
@@ -144,9 +144,13 @@ export default {
       }
     },
     // 向播放列表添加歌曲
-    _insertSong(songIndex) {
-      const song = this.searchResult[0].result[songIndex];
+    _insertSong(song) {
+      // const song = this.searchResult[0].result[songIndex];
       console.log(song);
+      // if (song.copyrightId === 0) {
+      //   alert('无版权！');
+      //   return;
+      // }
       this.insertSong(song);
     },
     ...mapActions([
@@ -172,6 +176,11 @@ export default {
     this.clearSearchResultData();
   },
   watch: {
+    searchKeyWords(val) {
+      if (val === '') {
+        this.$router.push('/search');
+      }
+    },
     $route(val) {
       this.id = val.params.id;
       this._getSearchResult();
@@ -246,7 +255,8 @@ export default {
     height: 54px;
     margin-right: 8px;
     line-height: 0;
-    background-color: #7e7e7e;
+    background-color: #e2e3e5;
+    background-size: cover;
   }
   .result-list-item .result-list-item-img img{
     width: 100%;

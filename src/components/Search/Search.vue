@@ -5,7 +5,11 @@
     <scroll class="search-hidtory-scroll">
       <p class="search-label search-hidtory-label">搜索历史</p>
       <ul>
-        <li v-for="(item, index) in searchHistory" :key="`searchhistory${index}`">{{ item }}</li>
+        <li v-for="(item, index) in searchHistory" :key="`searchhistory${index}`" class="search-suggest-item search-hidtory-item">
+          <i class="iconfont icon-time"></i>
+          <p class="overflow-ellipsis" @click="toSearch(item)">{{ item }}</p>
+          <i class="iconfont icon-close2" @click="deleteSearchHistory(item)"></i>
+        </li>
       </ul>
     </scroll>
 
@@ -18,7 +22,7 @@
       <div v-if="searchSuggest.songs">
         <p class="search-label search-suggest-label">单曲</p>
         <ul>
-          <li v-for="item in searchSuggest.songs" :key="item.id" class="search-suggest-item">{{ item.name }} - {{ item.album.name }}</li>
+          <li v-for="item in searchSuggest.songs" :key="item.id" class="search-suggest-item overflow-ellipsis" @click="_insertSong(item)">{{ item.name }} - {{ item.album.name }}</li>
         </ul>
       </div>
 
@@ -26,7 +30,7 @@
       <div v-if="searchSuggest.albums">
         <p class="search-label search-suggest-label">专辑</p>
         <ul>
-            <li v-for="item in searchSuggest.albums" :key="item.id" class="search-suggest-item">{{ item.name }} - {{ item.artist.name }}</li>
+            <li v-for="item in searchSuggest.albums" :key="item.id" class="search-suggest-item overflow-ellipsis">{{ item.name }} - {{ item.artist.name }}</li>
         </ul>
       </div>
 
@@ -34,7 +38,7 @@
       <div v-if="searchSuggest.playlists">
         <p class="search-label search-suggest-label">歌单</p>
         <ul>
-            <li v-for="item in searchSuggest.playlists" :key="item.id" class="search-suggest-item">{{ item.name }}</li>
+            <li v-for="item in searchSuggest.playlists" :key="item.id" class="search-suggest-item overflow-ellipsis">{{ item.name }}</li>
         </ul>
       </div>
     </scroll>
@@ -47,7 +51,7 @@
 <script>
 import Scroll from '@/components/base/Scroll/Scroll';
 import { getSearchSuggest } from '@/api/search';
-import { mapState, mapMutations } from 'vuex';
+import { mapState, mapMutations, mapActions } from 'vuex';
 
 export default {
   components: {
@@ -81,11 +85,25 @@ export default {
         console.log(err);
       });
     },
+    // 点击搜索历史
+    toSearch(keywords) {
+      this.setSearchKeyWorde(keywords);
+      this.$router.push('/search/1');
+    },
+    // 向播放列表添加歌曲
+    _insertSong(song) {
+      // console.log(song);
+      this.insertSong(song);
+    },
     ...mapMutations({
       setSearchSuggest: 'SET_SEARCH_SUGGEST',
       setSearching: 'SET_SEARCHING',
       setSearchKeyWorde: 'SET_SEARCH_KEYWORDS',
     }),
+    ...mapActions([
+      'deleteSearchHistory',
+      'insertSong',
+    ]),
   },
   created() {
     this.setSearching(true);
@@ -147,14 +165,16 @@ export default {
   }
 
   .search-suggest-item{
-    font-size: 14px;
-    line-height: 3;
+    display: flex;
+    align-items: center;
+    height: 42px;
+    margin-left: 6px;
+    box-sizing: border-box;
     border-bottom: 1px solid #e2e3e5;
-    margin-left: 0.5em;
     color: #000;
-    overflow: hidden;
-    text-overflow:ellipsis;
-    white-space: nowrap;
+  }
+  .search-suggest-item:last-child{
+    border: none;
   }
   .search-suggest-to-search{
     font-size: 14px;
@@ -164,4 +184,17 @@ export default {
     color: #547fb2;
   }
   
+  /*搜索历史*/
+  .search-hidtory-item>p{
+    flex: 1 1 auto;
+    padding: 0 6px;
+    line-height: 1;
+  }
+  .search-hidtory-item .iconfont{
+    flex: 0 0 auto;
+    color: #9c9d9f;
+  }
+  .search-hidtory-item .icon-close2{
+    padding: 0 10px;
+  }
 </style>

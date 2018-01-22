@@ -305,7 +305,7 @@ export default {
     /*right: 0*/
     /*bottom: 0*/
     overflow: hidden;
-    background: #fff;
+    /*background: #fff;*/
   }
   .list-wrapper .scroll-content{
     position: relative;
@@ -314,7 +314,7 @@ export default {
   .list-wrapper .list-content{
     position: relative;
     z-index: 10;
-    background: #fff;
+    /*background: #fff;*/
     
   }
   .list-wrapper .list-content .list-item{
