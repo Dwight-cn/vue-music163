@@ -56,6 +56,5 @@ module.exports = {
     'no-plusplus': 0,
     'arrow-body-style': 0,
     'no-alert': 0,
-    'linebreak-style': 0,
   }
 }

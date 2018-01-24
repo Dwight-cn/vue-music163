@@ -7,7 +7,7 @@
       </div>
       <div class="tab-render-content">
         <!--单曲-->
-        <scroll class="result-list songs-result" v-if="id==1">
+        <scroll class="result-list songs-result" v-if="id==1" :pullUpLoad="loadmore">
           <ul>
             <li v-for="(item,index) in searchResult[0].result" :key="item.id" class="result-list-item" @click="_insertSong(item)">
               <div class="result-list-item-con">
@@ -138,7 +138,7 @@ export default {
             id: this.id,
             data: res.data.result[nowItem.key],
           };
-          console.log(res);
+          // console.log(res);
           this.setSearchResultData(params);
         });
       }
@@ -146,12 +146,15 @@ export default {
     // 向播放列表添加歌曲
     _insertSong(song) {
       // const song = this.searchResult[0].result[songIndex];
-      console.log(song);
+      // console.log(song);
       // if (song.copyrightId === 0) {
       //   alert('无版权！');
       //   return;
       // }
       this.insertSong(song);
+    },
+    loadmore() {
+      console.log('加载更多');
     },
     ...mapActions([
       'setSearchResultData',

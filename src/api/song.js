@@ -12,3 +12,9 @@ export function getSongUrlDetail(songid) {
   const url = `${apiConfig.baseUrl}/song/detail?ids=${songid}`;
   return axios.get(url);
 }
+
+// 获取歌词
+export function getSongLrc(songid) {
+  const url = `${apiConfig.baseUrl}/lyric?id=${songid}`;
+  return axios.get(url);
+}

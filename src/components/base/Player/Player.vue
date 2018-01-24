@@ -12,17 +12,33 @@
             <h5 class="overflow-ellipsis"><span v-for="(a, index) in currentSong.artists" :key="`title${index}-${a.id}`"> {{a.name}} </span> </h5>
           </div>
         </div>
-        <div class="player-middle">
+        
+        <div class="player-middle" @click="toggleCDShow">
           <!--唱片-->
-          <div class="cd-wrapper" ref="cdRef">
-            <img src="./img/cd-stylus.png" alt="" class="cd-stylus" :class="{playing: playing}">
-            <div class="cd" :class="{playing: playing}">
-              <img src="./img/cd.png" alt="">
-              <div class="cd-img">
-                <img :src="songCover" alt="">
+          <transition name="fade">
+            <div class="cd-wrapper" ref="cdRef" v-show="cdShow">
+              <img src="./img/cd-stylus.png" alt="" class="cd-stylus" :class="{playing: playing}">
+              <div class="cd" :class="{playing: playing}">
+                <img src="./img/cd.png" alt="">
+                <div class="cd-img">
+                  <img :src="songCover" alt="">
+                </div>
               </div>
             </div>
-          </div>
+          </transition>
+          <!-- 歌词 -->
+          <transition name="fade">
+            <div class="lrc-wrapper" v-show="!cdShow">
+              <scroll ref="lyricList" class="lrc-scroll">
+                <div class="lrc-inner" v-if="currentLyric">
+                  <p  ref="lyricLine" v-for="(line, index) in currentLyric.lines" :key="`lrc${index}-${line.time}`" :class="{current: index === currentLyricLine, near: Math.abs(index - currentLyricLine) < 5}">
+                    {{ line.txt }}
+                  </p>
+                </div>
+                <p v-else>暂无歌词 ^_^</p> 
+              </scroll>
+            </div>
+          </transition>
         </div>
         <div class="player-bottom">
           <!--进度条-->
@@ -89,8 +105,9 @@
 import ProgressBar from '@/components/base/ProgressBar/ProgressBar';
 import Scroll from '@/components/base/Scroll/Scroll';
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
-import { getSongUrl, getSongUrlDetail } from '@/api/song';
+import { getSongUrl, getSongUrlDetail, getSongLrc } from '@/api/song';
 import { playMode } from '@/store/default';
+import Lyric from '@/assets/js/lrc';
 
 export default {
   name: 'HelloWorld',
@@ -104,12 +121,18 @@ export default {
       currentSongUrl: '',
       // 歌曲封面
       songCover: '',
+      // 当前歌词
+      currentLyric: null,
+      // 当前的歌词在第几行
+      currentLyricLine: -1,
       // 标志位。歌曲已缓存好，可以播放了
       songReady: false,
       // 当前播放时间
       currentTime: 0,
       // 播放列表显示
       playlistShow: false,
+      // CD是否显示
+      cdShow: true,
     };
   },
   computed: {
@@ -184,6 +207,21 @@ export default {
         this.songPlay();
       });
     },
+    _getSongLrc(songid) {
+      getSongLrc(songid).then((res) => {
+        if (res.data.lrc) {
+          const lrc = res.data.lrc.lyric;
+          this.currentLyric = new Lyric(lrc, this.handleLyric);
+          if (this.playing) {
+            this.currentLyric.play();
+          }
+        } else {
+          this.currentLyric = null;
+        }
+      }).catch(() => {
+        this.currentLyric = null;
+      });
+    },
     // 隐藏播放器
     hidePlayer() {
       this.setPlayerShow(false);
@@ -222,10 +260,10 @@ export default {
         return;
       }
       this.setPlaying(!this.playing);
-      // 暂停时，歌词也暂停
-      /*  if (this.currentLyric) {
-        this.currentLyric.togglePlay()
-      } */
+      // 切换歌词状态
+      if (this.currentLyric) {
+        this.currentLyric.togglePlay();
+      }
     },
     // 上一首
     prevSong() {
@@ -278,9 +316,9 @@ export default {
       this.$refs.audioRef.currentTime = 0;
       this.$refs.audioRef.play();
       // 单曲循环时，歌词也单曲循环
-      // if (this.currentLyric) {
-      //   this.currentLyric.seek(0);
-      // }
+      if (this.currentLyric) {
+        this.currentLyric.seek(0);
+      }
     },
     // props down，当进度改变了
     percentChange(newPercent) {
@@ -291,10 +329,10 @@ export default {
       if (!this.playing) {
         this.togglePlaying();
       }
-
-     /* if (this.currentLyric) {
+      // 歌词跳转
+      if (this.currentLyric) {
         this.currentLyric.seek(currentTime * 1000);
-      } */
+      }
     },
     // 打开播放列表
     openPlaylist() {
@@ -322,6 +360,16 @@ export default {
       });
       this.setCurrentIndex(index);
       this.setPlayList(newList);
+    },
+    // 歌词回调
+    handleLyric({ lineNum }) {
+      this.currentLyricLine = lineNum;
+      const el = this.$refs.lyricLine[lineNum];
+      this.$refs.lyricList.scrollToElement(el, 1000);
+    },
+    // 切换cd显示
+    toggleCDShow() {
+      this.cdShow = !this.cdShow;
     },
     // 洗牌函数，用于生成随机播放列表
     shuffle(arr, flag = false) {
@@ -354,15 +402,20 @@ export default {
   },
   watch: {
     currentSong(newVal) {
-      console.log(newVal);
       // 播放列表没有歌曲就退出
       if (!newVal.id) {
         this.songCover = '';
         this.songUrl = '';
         return;
       }
+      // 切歌时，停止当前歌词
+      if (this.currentLyric) {
+        this.currentLyric.stop();
+      }
+
       this._getSongUrl(newVal.id);
       this._getSongCover(newVal.id);
+      this._getSongLrc(newVal.id);
     },
     // 播放 or 暂停
     playing(newVal) {
@@ -445,7 +498,7 @@ export default {
     position: relative;
     /*background-color: #f00;*/
   }
-  .player-middle .cd-wrapper{
+  .player-middle .cd-wrapper, .player-middle .lrc-wrapper{
     position: absolute;
     left: 0;
     top: 0;
@@ -515,6 +568,30 @@ export default {
     -webkit-animation-play-state: running;
   }
 
+  /* 歌词 */
+  .lrc-wrapper{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .lrc-wrapper .lrc-scroll{
+    height: 2.5em;
+    overflow: visible;
+  }
+  .lrc-wrapper .lrc-scroll p{
+    text-align: center;
+    color: rgba(255, 255, 255, 0.5);
+    line-height: 2.5;
+    font-size: 16px;
+  }
+  .lrc-wrapper .lrc-scroll p.near{
+    color: rgba(255, 255, 255, 0.5)
+  }
+  .lrc-wrapper .lrc-scroll p.current{
+    color: #fff;
+  }
+
+  /* 播放器底部 */
   .player-bottom{
     flex: 0 0 auto;
     height: 140px;
@@ -649,6 +726,14 @@ export default {
   .slide-enter, .slide-leave-to{
     transform: translateX(100%);
     opacity: 0.5;
+  }
+
+  /*播放器过渡*/
+  .fade-enter-active, .fade-leave-active{
+    transition: all .3s ease;
+  }
+  .fade-enter, .fade-leave-to{
+    opacity: 0;
   }
 
   /*转动动画*/

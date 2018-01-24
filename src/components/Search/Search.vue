@@ -5,7 +5,7 @@
     <scroll class="search-hidtory-scroll">
       <p class="search-label search-hidtory-label">搜索历史</p>
       <ul>
-        <li v-for="(item, index) in searchHistory" :key="`searchhistory${index}`" class="search-suggest-item search-hidtory-item">
+        <li v-for="(item, index) in searchHistoryReverse" :key="`searchhistory${index}`" class="search-suggest-item search-hidtory-item">
           <i class="iconfont icon-time"></i>
           <p class="overflow-ellipsis" @click="toSearch(item)">{{ item }}</p>
           <i class="iconfont icon-close2" @click="deleteSearchHistory(item)"></i>
@@ -63,6 +63,10 @@ export default {
     };
   },
   computed: {
+    searchHistoryReverse() {
+      const searchHistory = [...this.searchHistory];
+      return searchHistory.reverse();
+    },
     // 使用对象展开运算符将此对象混入到外部对象中
     ...mapState([
       'searchKeyWords',

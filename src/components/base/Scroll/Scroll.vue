@@ -120,14 +120,14 @@ export default {
   },
   computed: {
     pullUpTxt() {
-      const moreTxt = this.pullUpLoad && this.pullUpLoad.txt && this.pullUpLoad.txt.more || this.$i18n.t('scrollComponent.defaultLoadTxtMore');
+      const moreTxt = this.pullUpLoad && this.pullUpLoad.txt && this.pullUpLoad.txt.more || '加载中';
 
-      const noMoreTxt = this.pullUpLoad && this.pullUpLoad.txt && this.pullUpLoad.txt.noMore || this.$i18n.t('scrollComponent.defaultLoadTxtNoMore');
+      const noMoreTxt = this.pullUpLoad && this.pullUpLoad.txt && this.pullUpLoad.txt.noMore || '没有更多';
 
       return this.pullUpDirty ? moreTxt : noMoreTxt;
     },
     refreshTxt() {
-      return this.pullDownRefresh && this.pullDownRefresh.txt || this.$i18n.t('scrollComponent.defaultRefreshTxt');
+      return this.pullDownRefresh && this.pullDownRefresh.txt || '...';
     },
   },
   created() {
