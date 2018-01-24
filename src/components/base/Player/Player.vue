@@ -15,8 +15,8 @@
         
         <div class="player-middle" @click="toggleCDShow">
           <!--唱片-->
-          <transition name="fade">
-            <div class="cd-wrapper" ref="cdRef" v-show="cdShow">
+          <!-- <transition name="fade"> -->
+            <div class="cd-wrapper" ref="cdRef" :class="{show: cdShow}">
               <img src="./img/cd-stylus.png" alt="" class="cd-stylus" :class="{playing: playing}">
               <div class="cd" :class="{playing: playing}">
                 <img src="./img/cd.png" alt="">
@@ -25,10 +25,10 @@
                 </div>
               </div>
             </div>
-          </transition>
+          <!-- </transition> -->
           <!-- 歌词 -->
-          <transition name="fade">
-            <div class="lrc-wrapper" v-show="!cdShow">
+          <!-- <transition name="fade"> -->
+            <div class="lrc-wrapper" :class="{show: !cdShow}">
               <scroll ref="lyricList" class="lrc-scroll">
                 <div class="lrc-inner" v-if="currentLyric">
                   <p  ref="lyricLine" v-for="(line, index) in currentLyric.lines" :key="`lrc${index}-${line.time}`" :class="{current: index === currentLyricLine, near: Math.abs(index - currentLyricLine) < 5}">
@@ -38,7 +38,7 @@
                 <p v-else>暂无歌词 ^_^</p> 
               </scroll>
             </div>
-          </transition>
+          <!-- </transition> -->
         </div>
         <div class="player-bottom">
           <!--进度条-->
@@ -73,26 +73,26 @@
       </div>
 
       <!--播放列表-->
-      <div class="player-playlist-wrap" :class="{show: playlistShow}"  @click="closePlaylist">
-        <div class="player-playlist" @click.stop>
-          <div class="player-playlist-top"  @click="changeMode">
-            <i class="iconfont" :class="iconMode"></i>
-            <span>{{ modeText }}</span>
+      <div class="player-playlist-wrap" :class="{show: playlistShow}" @click="closePlaylist">
+          <div class="player-playlist" @click.stop :class="{show: playlistShow}">
+            <div class="player-playlist-top"  @click="changeMode">
+              <i class="iconfont" :class="iconMode"></i>
+              <span>{{ modeText }}</span>
+            </div>
+            <scroll class="player-playlist-scroll">
+              <ul>
+                <li v-for="(item, index) in playlist" :key="`${index}-${item.id}`" class="player-playlist-item" :class="{playing: index == currentIndex}">
+                  <p class="overflow-ellipsis" @click="playSong(index)">
+                    <i class="iconfont icon-notification"></i>
+                    {{ item.name }}
+                    <span> - <span v-for="artist in item.artists" :key="`${item.id}attist${artist.name}`" class="item-info-artist">{{ artist.name }}</span></span>
+                  </p>
+                  <i class="iconfont icon-close2" @click="deleteSong(item)"></i>
+                </li>
+              </ul>
+            </scroll>
+            <div class="playlist-close-btn" @click="closePlaylist">关闭</div>
           </div>
-          <scroll class="player-playlist-scroll">
-            <ul>
-              <li v-for="(item, index) in playlist" :key="`${index}-${item.id}`" class="player-playlist-item" :class="{playing: index == currentIndex}">
-                <p class="overflow-ellipsis" @click="playSong(index)">
-                  <i class="iconfont icon-notification"></i>
-                  {{ item.name }}
-                  <span> - <span v-for="artist in item.artists" :key="`${item.id}attist${artist.name}`" class="item-info-artist">{{ artist.name }}</span></span>
-                </p>
-                <i class="iconfont icon-close2" @click="deleteSong(item)"></i>
-              </li>
-            </ul>
-          </scroll>
-          <div class="playlist-close-btn" @click="closePlaylist">关闭</div>
-        </div>
       </div>
 
       <!-- 播放器 -->
@@ -507,6 +507,13 @@ export default {
     overflow: hidden;
     /*display: flex;*/
     /*justify-content: center;*/
+    opacity: 0;
+    z-index: 1;
+    transition: opacity 0.5s;
+  }
+  .cd-wrapper.show{
+    z-index: 2;
+    opacity: 1;
   }
   .cd-wrapper .cd-stylus{
     position: absolute;
@@ -573,6 +580,10 @@ export default {
     display: flex;
     flex-direction: column;
     justify-content: center;
+  }
+  .lrc-wrapper.show{
+    z-index: 2;
+    opacity: 1;
   }
   .lrc-wrapper .lrc-scroll{
     height: 2.5em;
@@ -662,11 +673,9 @@ export default {
     max-height: 60%;
     background-color: rgba(255, 255, 255, 0.9);
     color: #000;
-    transition: 1s all;
-    transform: translateY(100%);
   }
-  .player-playlist-wrap.show .player-playlist{
-    transform: translateY(0);
+  .player-playlist-wrap .player-playlist.show{
+    animation: slideUp 0.3s 0s both;
   }
   .player-playlist-top{
     padding: 10px;
@@ -719,7 +728,7 @@ export default {
     border-top: 1px solid #e2e3e5;
   }
 
-  /*播放器过渡*/
+  /*过渡*/
   .slide-enter-active, .slide-leave-active{
     transition: all .3s ease;
   }
@@ -728,7 +737,6 @@ export default {
     opacity: 0.5;
   }
 
-  /*播放器过渡*/
   .fade-enter-active, .fade-leave-active{
     transition: all .3s ease;
   }
@@ -736,10 +744,20 @@ export default {
     opacity: 0;
   }
 
+
   /*转动动画*/
   @keyframes round {
     100% {
       transform: rotate(1turn);
+    }
+  }
+
+  @keyframes slideUp {
+    0% {
+      transform: translateY(100%);
+    }
+    100% {
+      transform: translateY(0);
     }
   }
 </style>

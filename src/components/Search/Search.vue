@@ -114,7 +114,7 @@ export default {
   },
   beforeDestroy() {
     this.setSearching(false);
-    this.setSearchKeyWorde('');
+    // this.setSearchKeyWorde('');
   },
   mounted() {
 

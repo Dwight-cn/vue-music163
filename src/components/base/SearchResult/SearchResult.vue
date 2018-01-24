@@ -1,11 +1,11 @@
 <template>
   <div class="search-result-scroll">
-      <div class="navigator-container" ref="viewport">
+      <div class="navigator-container" ref="viewport" v-if="searchKeyWords">
         <navigator :navList="searchResult" @change="change" :currentTabIndex="currentTabIndex">
           <span slot="item" slot-scope="props" class="tab-name" :class="{'link-active':isCurrent(props.index)}">{{props.text}}</span>
         </navigator>
       </div>
-      <div class="tab-render-content">
+      <div class="tab-render-content" v-if="searchKeyWords">
         <!--单曲-->
         <scroll class="result-list songs-result" v-if="id==1" :pullUpLoad="loadmore">
           <ul>
@@ -26,13 +26,15 @@
         <scroll class="result-list artists-result" v-if="id==100">
           <loading v-if="!searchResult[1].result.length"></loading>
           <ul>
-            <li v-for="item in searchResult[1].result" :key="item.id" class="result-list-item">
-              <figure class="result-list-item-img" :style="`background-image:url(${item.img1v1Url})`">
-                <!--<img :src="item.img1v1Url" alt="">-->
-              </figure>
-              <div class="result-list-item-con">
-                <h4 class="overflow-ellipsis">{{ item.name }} <span v-for="i in  item.alia" :key="i">({{ i }})</span></h4>
-              </div>
+            <li v-for="item in searchResult[1].result" :key="item.id">
+              <router-link :to="`/singer/${item.id}`" class="result-list-item">
+                <figure class="result-list-item-img" :style="`background-image:url(${item.img1v1Url})`">
+                  <!--<img :src="item.img1v1Url" alt="">-->
+                </figure>
+                <div class="result-list-item-con">
+                  <h4 class="overflow-ellipsis">{{ item.name }} <span v-for="i in  item.alia" :key="i">({{ i }})</span></h4>
+                </div>
+              </router-link> 
             </li>
           </ul>
         </scroll>
@@ -172,11 +174,13 @@ export default {
     setTimeout(() => {
       this.currentTabIndex = parseInt(this.id, 10);
     }, 20);
-    this._getSearchResult();
-    this.addSearchHistory(this.searchKeyWords);
+    if (this.searchKeyWords) {
+      this._getSearchResult();
+      this.addSearchHistory(this.searchKeyWords);
+    }
   },
   beforeDestroy() {
-    this.clearSearchResultData();
+    // this.clearSearchResultData();
   },
   watch: {
     searchKeyWords(val) {

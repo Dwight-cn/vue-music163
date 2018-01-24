@@ -9,6 +9,7 @@ Vue.use(Router);
 const HelloWorld = () => import('@/components/HelloWorld');
 const Search = () => import('@/components/Search/Search');
 const SearchResult = () => import('@/components/base/SearchResult/SearchResult');
+const Singer = () => import('@/components/Singer/Singer');
 
 export default new Router({
   routes: [
@@ -32,6 +33,11 @@ export default new Router({
           component: SearchResult,
         },
       ],
+    },
+    {
+      path: '/singer/:id',
+      name: 'Singer',
+      component: Singer,
     },
   ],
 });

@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import { mapState, mapMutations } from 'vuex';
+import { mapState, mapMutations, mapActions } from 'vuex';
 
 export default {
   data() {
@@ -45,6 +45,9 @@ export default {
       setSearchKeyWords: 'SET_SEARCH_KEYWORDS',
       setSearchFocus: 'SET_SEARCHING_FOCUS',
     }),
+    ...mapActions([
+      'clearSearchResultData',
+    ]),
   },
   created() {
 
@@ -56,6 +59,7 @@ export default {
     },
     searchKeyWords(val) {
       this.keywords = val;
+      this.clearSearchResultData();
     },
   },
 };
