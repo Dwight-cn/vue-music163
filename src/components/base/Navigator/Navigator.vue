@@ -98,6 +98,8 @@
   .navigator-component .list-wrapper{
     background: #f9f9f9;
     border-bottom: 1px solid #e0e0e0;
+    min-width: 100%;
+    text-align: center;
   }
   .navigator-component .list-wrapper .scroll-content{
     display: inline-block;

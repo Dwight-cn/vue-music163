@@ -3,7 +3,7 @@ import apiConfig from './config';
 
 
 // 获取歌手热门单曲
-export function getSingerSong(singerid) {
+export function getSingerSongs(singerid) {
   const url = `${apiConfig.baseUrl}/artists?id=${singerid}`;
   return axios.get(url);
 }

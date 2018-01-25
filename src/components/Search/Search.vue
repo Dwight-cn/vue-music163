@@ -84,8 +84,7 @@ export default {
           this.setSearchSuggest(res.data.result);
         }
         // console.log(res.data.result);
-      })
-      .catch((err) => {
+      }).catch((err) => {
         console.log(err);
       });
     },

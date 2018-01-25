@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import { mapState, mapMutations } from 'vuex';
+import { mapMutations } from 'vuex';
 
 export default {
   props: ['playing'],
@@ -20,7 +20,7 @@ export default {
     ...mapMutations({
       setPlayerShow: 'SET_PLAYER_SHOW',
     }),
-  }
+  },
 };
 </script>
 
