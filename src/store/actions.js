@@ -13,12 +13,25 @@ function findIndex(arr, i) {
 }
 
 // 设置搜索结果
-export const setSearchResultData = ({ commit, state }, { id, data }) => {
+export const setSearchResultData = ({ commit, state }, { id, page, data }) => {
   const searchResultcopy = [...state.searchResult];
   const searchResultItem = searchResultcopy.find((item) => {
     return item.id === parseInt(id, 10);
   });
+  searchResultItem.page = page;
   searchResultItem.result = data;
+  commit(types.SET_SEARCH_RESULT, searchResultcopy);
+};
+
+// 添加搜索结果
+export const addSearchResultData = ({ commit, state }, { id, page, data }) => {
+  const searchResultcopy = [...state.searchResult];
+  const searchResultItem = searchResultcopy.find((item) => {
+    return item.id === parseInt(id, 10);
+  });
+  searchResultItem.page = page;
+  searchResultItem.result = [...searchResultItem.result, ...data];
+  console.log(searchResultItem.result);
   commit(types.SET_SEARCH_RESULT, searchResultcopy);
 };
 
@@ -26,6 +39,7 @@ export const setSearchResultData = ({ commit, state }, { id, data }) => {
 export const clearSearchResultData = ({ commit, state }) => {
   const searchResultcopy = [...state.searchResult];
   searchResultcopy.forEach((item) => {
+    item.page = 0;
     item.result = [];
   });
   commit(types.SET_SEARCH_RESULT, searchResultcopy);

@@ -112,6 +112,9 @@ export default {
         console.log(err);
       });
     },
+    _getSingerAlbum(offset) {
+      getSingerAlbum(this.singerid, offset);
+    },
     change(item) {
       if (item !== undefined) {
         this.currentTabIndex = item.id;
@@ -137,18 +140,18 @@ export default {
     scrollY(newVal) {
       let scale = 1;
       let blur = 0;
-      const formula = Math.abs(newVal/400);
+      const formula = Math.abs(newVal / 400);
 
       if (newVal > 0) {
         scale = 1 + formula;
-        this.$refs.bgImageRef.style['transform'] = `scale(${scale})`;
-        this.$refs.bgImageRef.style['webkitTransform'] = `scale(${scale})`;
-      } else if (newVal <=0 && newVal > -this.scrollTopDist) {
+        this.$refs.bgImageRef.style.transform = `scale(${scale})`;
+        this.$refs.bgImageRef.style.webkitTransform = `scale(${scale})`;
+      } else if (newVal <= 0 && newVal > -this.scrollTopDist) {
         blur = Math.min(10 * formula, 5);
         this.$refs.bgImageRef.style['-webkit-filter'] = `blur(${blur}px)`;
       }
     },
-  }
+  },
 };
 </script>
 

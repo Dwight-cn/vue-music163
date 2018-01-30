@@ -7,9 +7,9 @@
       </div>
       <div class="tab-render-content" v-if="searchKeyWords">
         <!--单曲-->
-        <scroll class="result-list songs-result" v-if="id==1" :pullUpLoad="loadmore">
+        <scroll ref="scroll" :data="searchResult[0].result" class="result-list songs-result" v-if="id==1" :pullUpLoad="pullUpLoad" @pullingUp="loadmore">
           <ul>
-            <li v-for="(item,index) in searchResult[0].result" :key="item.id" class="result-list-item" @click="_insertSong(item)">
+            <li v-for="(item,index) in searchResult[0].result" class="result-list-item" @click="_insertSong(item)">
               <div class="result-list-item-con">
                 <h4 class="overflow-ellipsis">{{ item.name }}</h4>
                 <h5 class="overflow-ellipsis">
@@ -107,7 +107,12 @@ export default {
   data() {
     return {
       id: this.$route.params.id,
-      currentTabIndex: 1, // 当前默认tab
+      // 当前默认tab
+      currentTabIndex: 1,
+      // 配置上拉加载，threshold为距底部多少是开始加载
+      pullUpLoad: {
+        threshold: 50,
+      },
     };
   },
   computed: {
@@ -128,20 +133,44 @@ export default {
       }
     },
     _getSearchResult() {
-      const keywords = this.searchKeyWords;
-      const type = this.id;
-      const nowItem = this.searchResult.find((item) => {
-        return item.id === parseInt(this.id, 10);
+      return new Promise((resolve, reject) => {
+        const keywords = this.searchKeyWords;
+        const type = this.id;
+        const nowItem = this.searchResult.find((item) => {
+          return item.id === parseInt(this.id, 10);
+        });
+        if (nowItem) {
+          let page = nowItem.page;
+          getSearchResult(keywords, type, page).then((res) => {
+            page++;
+            const params = {
+              id: this.id,
+              page,
+              data: res.data.result[nowItem.key],
+            };
+            // console.log(res);
+            resolve(params);
+          }).catch((err) => {
+            reject(err);
+          });
+        }
       });
-      if (nowItem) {
-        const page = nowItem.page;
-        getSearchResult(keywords, type, page).then((res) => {
-          const params = {
-            id: this.id,
-            data: res.data.result[nowItem.key],
-          };
-          // console.log(res);
-          this.setSearchResultData(params);
+    },
+    initSearchResult() {
+      this._getSearchResult().then((res) => {
+        this.addSearchResultData(res);
+      });
+    },
+    // 加载更多
+    loadmore() {
+      // 单曲
+      const id = Number(this.id);
+      console.log(id);
+      if (id === 1) {
+        this._getSearchResult().then((res) => {
+          this.addSearchResultData(res);
+        }).catch(() => {
+          this.$refs.scroll.forceUpdate();
         });
       }
     },
@@ -155,11 +184,9 @@ export default {
       // }
       this.insertSong(song);
     },
-    loadmore() {
-      console.log('加载更多');
-    },
     ...mapActions([
       'setSearchResultData',
+      'addSearchResultData',
       'clearSearchResultData',
       'insertSong',
       'addSearchHistory',
@@ -175,7 +202,7 @@ export default {
       this.currentTabIndex = parseInt(this.id, 10);
     }, 20);
     if (this.searchKeyWords) {
-      this._getSearchResult();
+      this.initSearchResult();
       this.addSearchHistory(this.searchKeyWords);
     }
   },
@@ -190,7 +217,7 @@ export default {
     },
     $route(val) {
       this.id = val.params.id;
-      this._getSearchResult();
+      this.initSearchResult();
     },
   },
 };
