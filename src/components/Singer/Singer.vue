@@ -28,6 +28,23 @@
                   </div>
                 </li>
               </ul>
+              <!-- 专辑列表 -->
+              <ul v-if="currentTabIndex === 1">
+                <li v-for="item in hotAlbums" :key="item.id" class="result-list-item albums-result-list-item">
+                  <figure class="result-list-item-img" :style="`background-image:url(${item.blurPicUrl})`"></figure>
+                  <div class="result-list-item-con">
+                    <h4 class="overflow-ellipsis">{{ item.name }}</h4>
+                    <!-- <h5 class="overflow-ellipsis">{{ item.artist.name }}</h5> -->
+                  </div>
+                </li>
+              </ul>
+              <!-- 歌手信息 -->
+              <ul v-if="currentTabIndex === 2" class="singer-desc">
+                <li v-for="item in singerDesc" >
+                  <h3>{{ item.ti }}</h3>
+                  <p>{{ item.txt | br }}</p>
+                </li>
+              </ul>
             </div>
             
           </div>
@@ -43,10 +60,11 @@ import Scroll from '@/components/base/Scroll/Scroll';
 import Navigator from '@/components/base/Navigator/Navigator';
 import Loading from '@/components/base/Loading/Loading';
 import { mapState } from 'vuex';
-import { getSingerSongs, getSingerAlbum } from '@/api/singer';
+import { getSingerSongs, getSingerAlbum, getSingerDesc } from '@/api/singer';
+import { songMixin } from '@/assets/js/mixin';
 
 export default {
-  name: 'HelloWorld',
+  mixins: [songMixin],
   components: {
     myHeader,
     Scroll,
@@ -60,7 +78,11 @@ export default {
       // 歌手信息
       singer: null,
       // 热门歌曲
-      hotSongs: null,
+      hotSongs: [],
+      // 专辑
+      hotAlbums: [],
+      // 歌手描述
+      singerDesc: [],
       // 滚动区域scrollY
       scrollY: 0,
       // 当前标签索引
@@ -90,11 +112,23 @@ export default {
       'searchResult',
     ]),
   },
+  filters: {
+    br(value) {
+      if (!value) return '';
+      return value.split('\n').join('<br>');
+    },
+  },
   methods: {
     findSingerById(arr, singerid) {
       return arr.find((item) => {
         return item.id && item.id === Number(singerid);
       });
+    },
+    initSinger() {
+      this._getSingerInfo();
+      this._getSingerSongs();
+      this._getSingerAlbum();
+      this._getSingerDesc();
     },
     // 从搜索结果获取歌手信息
     _getSingerInfo() {
@@ -106,14 +140,28 @@ export default {
       getSingerSongs(this.singerid).then((res) => {
         if (res.data.code === 200) {
           this.hotSongs = res.data.hotSongs;
+          this.singer.img1v1Url = res.data.artist.picUrl;
           console.log(res.data.hotSongs);
         }
       }).catch((err) => {
         console.log(err);
       });
     },
+    // 获取歌手专辑
     _getSingerAlbum(offset) {
-      getSingerAlbum(this.singerid, offset);
+      getSingerAlbum(this.singerid, offset).then((res) => {
+        this.hotAlbums = [...this.hotAlbums, ...res.data.hotAlbums];
+      }).catch((err) => {
+        console.log(err);
+      });
+    },
+    // 获取歌手描述
+    _getSingerDesc() {
+      getSingerDesc(this.singerid).then((res) => {
+        this.singerDesc = res.data.introduction;
+      }).catch((err) => {
+        console.log(err);
+      });
     },
     change(item) {
       if (item !== undefined) {
@@ -130,8 +178,7 @@ export default {
     this.probeType = 3;
     this.listenScroll = true;
 
-    this._getSingerInfo();
-    this._getSingerSongs();
+    this.initSinger();
   },
   mounted() {
     this.scrollTopDist = window.parseFloat(getComputedStyle(this.$refs.sfiref).paddingTop);
@@ -224,6 +271,19 @@ export default {
     text-align: center;
     padding-right: 10px;
   }
+  .result-list-item .result-list-item-img{
+    flex: 0 0 auto;
+    position: relative;
+    width: 54px;
+    height: 54px;
+    margin-right: 8px;
+    line-height: 0;
+    background-color: #e2e3e5;
+    background-size: cover;
+  }
+  .result-list-item .result-list-item-img img{
+    width: 100%;
+  }
   .result-list-item .result-list-item-con{
     height: 100%;
     display: flex;
@@ -248,5 +308,39 @@ export default {
     font-weight: normal;
     color: #9c9d9f;
     line-height: 1.5;
+  }
+  /*专辑*/
+  .albums-result-list-item .result-list-item-img{
+    margin-right: 20px;
+  }
+  .albums-result-list-item .result-list-item-img::after{
+    content: "";
+    position: absolute;
+    top: 2px;
+    right: -10px;
+    width: 10px;
+    height: 50px;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url(../../assets/img/albums-bg.png);
+  }
+
+  /* 歌手描述 */
+  .singer-desc>li{
+    overflow: hidden;
+  }
+  .singer-desc>li>h3{
+    font-size: 14px;
+    color: #000;
+    padding-left: 10px;
+    border-left: 2px solid #d63c34;
+    line-height: 1;
+    margin-top: 10px;
+  }
+  .singer-desc>li>p{
+    font-size: 12px;
+    color:#9c9d9f;
+    line-height: 1.5;
+    padding: 0.5em 1em;
   }
 </style>

@@ -14,3 +14,9 @@ export function getSingerAlbum(singerid, offset = 0) {
   const url = `${apiConfig.baseUrl}/artist/album?id=${singerid}&offset=${offset}`;
   return axios.get(url);
 }
+
+// 获取歌手描述
+export function getSingerDesc(singerid) {
+  const url = `${apiConfig.baseUrl}/artist/desc?id=${singerid}`;
+  return axios.get(url);
+}

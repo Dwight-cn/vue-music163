@@ -7,26 +7,25 @@
       </div>
       <div class="tab-render-content" v-if="searchKeyWords">
         <!--单曲-->
-        <scroll ref="scroll" :data="searchResult[0].result" class="result-list songs-result" v-if="id==1" :pullUpLoad="pullUpLoad" @pullingUp="loadmore">
+        <scroll ref="scroll-1" :data="searchResult[0].result" class="result-list songs-result" v-if="id==1" :pullUpLoad="pullUpLoad" @pullingUp="loadmore">
           <ul>
             <li v-for="(item,index) in searchResult[0].result" class="result-list-item" @click="_insertSong(item)">
-              <div class="result-list-item-con">
-                <h4 class="overflow-ellipsis">{{ item.name }}</h4>
-                <h5 class="overflow-ellipsis">
-                  <span><span v-for="artist in item.artists" :key="`${index}attist${artist.name}`" class="item-info-artist">{{ artist.name }}</span></span>
+              <cell :tit="item.name">
+                <div slot="sub-tit">
+                  <span><span v-for="artist in item.artists" class="item-info-artist">{{ artist.name }}</span></span>
                   - <span>{{ item.album.name }}</span>
-                </h5>
-              </div>
+                </div>
+              </cell>
             </li>
           </ul>
           <loading v-if="!searchResult[0].result.length"></loading>
         </scroll>
 
         <!--歌手-->
-        <scroll class="result-list artists-result" v-if="id==100">
+        <scroll ref="scroll-100" class="result-list artists-result" v-if="id==100" :pullUpLoad="pullUpLoad" @pullingUp="loadmore">
           <loading v-if="!searchResult[1].result.length"></loading>
           <ul>
-            <li v-for="item in searchResult[1].result" :key="item.id">
+            <li v-for="item in searchResult[1].result">
               <router-link :to="`/singer/${item.id}`" class="result-list-item">
                 <figure class="result-list-item-img" :style="`background-image:url(${item.img1v1Url})`">
                   <!--<img :src="item.img1v1Url" alt="">-->
@@ -40,7 +39,7 @@
         </scroll>
 
         <!--专辑-->
-        <scroll class="result-list albums-result" v-if="id==10">
+        <scroll ref="scroll-10" class="result-list albums-result" v-if="id==10" :pullUpLoad="pullUpLoad" @pullingUp="loadmore">
           <loading v-if="!searchResult[2].result.length"></loading>
           <ul>
             <li v-for="item in searchResult[2].result" :key="item.id" class="result-list-item albums-result-list-item">
@@ -56,7 +55,7 @@
         </scroll>
 
         <!--歌单-->
-        <scroll class="result-list playlists-result" v-if="id==1000">
+        <scroll ref="scroll-1000" class="result-list playlists-result" v-if="id==1000" :pullUpLoad="pullUpLoad" @pullingUp="loadmore">
           <loading v-if="!searchResult[3].result.length"></loading>
           <ul>
             <li v-for="item in searchResult[3].result" :key="item.id" class="result-list-item">
@@ -72,7 +71,7 @@
         </scroll>
 
         <!--用户-->
-        <scroll class="result-list userprofiles-result" v-if="id==1002">
+        <scroll ref="scroll-1002" class="result-list userprofiles-result" v-if="id==1002" :pullUpLoad="pullUpLoad" @pullingUp="loadmore">
           <loading v-if="!searchResult[4].result.length"></loading>
           <ul>
             <li v-for="item in searchResult[4].result" :key="item.id" class="result-list-item user-result-list-item">
@@ -94,15 +93,18 @@
 import Scroll from '@/components/base/Scroll/Scroll';
 import Navigator from '@/components/base/Navigator/Navigator';
 import Loading from '@/components/base/Loading/Loading';
+import Cell from '@/components/base/Cell/Cell';
 import { mapState, mapActions } from 'vuex';
 import { getSearchResult } from '@/api/search';
+import { songMixin } from '@/assets/js/mixin';
 
 export default {
-  name: 'HelloWorld',
+  mixins: [songMixin],
   components: {
     Scroll,
     Navigator,
     Loading,
+    Cell,
   },
   data() {
     return {
@@ -157,25 +159,30 @@ export default {
       });
     },
     initSearchResult() {
-      this._getSearchResult().then((res) => {
-        this.addSearchResultData(res);
+      const nowItem = this.searchResult.find((item) => {
+        return item.id === parseInt(this.id, 10);
       });
+      if (!nowItem.result.length) {
+        this._getSearchResult().then((res) => {
+          this.addSearchResultData(res);
+        });
+      }
     },
     // 加载更多
     loadmore() {
       // 单曲
-      const id = Number(this.id);
-      console.log(id);
-      if (id === 1) {
-        this._getSearchResult().then((res) => {
-          this.addSearchResultData(res);
-        }).catch(() => {
-          this.$refs.scroll.forceUpdate();
-        });
-      }
+      // const id = Number(this.id);
+      // console.log(id);
+      // if (id === 1) {
+      this._getSearchResult().then((res) => {
+        this.addSearchResultData(res);
+      }).catch(() => {
+        this.$refs[`scroll-${this.id}`].forceUpdate();
+      });
+      // }
     },
     // 向播放列表添加歌曲
-    _insertSong(song) {
+    /* _insertSong(song) {
       // const song = this.searchResult[0].result[songIndex];
       // console.log(song);
       // if (song.copyrightId === 0) {
@@ -183,12 +190,11 @@ export default {
       //   return;
       // }
       this.insertSong(song);
-    },
+    }, */
     ...mapActions([
       'setSearchResultData',
       'addSearchResultData',
       'clearSearchResultData',
-      'insertSong',
       'addSearchHistory',
     ]),
   },
@@ -245,18 +251,15 @@ export default {
   .result-list{
     height: 100%;
   }
-  /*.result-list-item{
-    margin-left: 10px;
-    border-bottom: 1px solid #e2e3e5;
-    padding: 10px 30px 10px 0;
-    
-  }*/
+
   .item-info-artist::after{
     content: ' / ';
   }
   .item-info-artist:last-child::after{
     content: '';
   }
+
+
   .item-name{
     margin-bottom: 6px;
     font-size: 14px;
@@ -334,7 +337,7 @@ export default {
     height: 50px;
     background-repeat: no-repeat;
     background-size: 100% 100%;
-    background-image: url(./albums-bg.png);
+    background-image: url(../../../assets/img/albums-bg.png);
   }
 
   /*用户*/

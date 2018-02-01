@@ -49,11 +49,14 @@
 </template>
 
 <script>
+import { songMixin } from '@/assets/js/mixin';
 import Scroll from '@/components/base/Scroll/Scroll';
 import { getSearchSuggest } from '@/api/search';
 import { mapState, mapMutations, mapActions } from 'vuex';
 
+
 export default {
+  mixins: [songMixin],
   components: {
     Scroll,
   },
@@ -93,11 +96,6 @@ export default {
       this.setSearchKeyWorde(keywords);
       this.$router.push('/search/1');
     },
-    // 向播放列表添加歌曲
-    _insertSong(song) {
-      // console.log(song);
-      this.insertSong(song);
-    },
     ...mapMutations({
       setSearchSuggest: 'SET_SEARCH_SUGGEST',
       setSearching: 'SET_SEARCHING',
@@ -105,7 +103,6 @@ export default {
     }),
     ...mapActions([
       'deleteSearchHistory',
-      'insertSong',
     ]),
   },
   created() {
