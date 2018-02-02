@@ -100,6 +100,20 @@
     border-bottom: 1px solid #e0e0e0;
     min-width: 100%;
     text-align: center;
+    position: relative;
+  }
+  .navigator-component .list-wrapper::after{
+    content: ' ';
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 30px;
+    height: 40px;
+    background-image: -webkit-linear-gradient(to right,rgba(248,248,248,0),#f8f8f8);
+    background-image: linear-gradient(to right,rgba(248,248,248,0),#f8f8f8);
+    z-index: 2;
+    pointer-events: none;
   }
   .navigator-component .list-wrapper .scroll-content{
     display: inline-block;

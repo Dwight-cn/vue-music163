@@ -17,7 +17,7 @@
               <!-- 热门单曲 -->
               <ul v-if="currentTabIndex === 0 && hotSongs">
                 <li v-for="(item,index) in hotSongs" :key="item.id" class="result-list-item" @click="_insertSong(item)">
-                  <figure class="result-list-item-index">
+                  <!-- <figure class="result-list-item-index">
                       {{ index + 1 }}
                   </figure>
                   <div class="result-list-item-con">
@@ -25,7 +25,8 @@
                     <h5 class="overflow-ellipsis">
                       <span>{{ item.al.name }}</span>
                     </h5>
-                  </div>
+                  </div> -->
+                  <song-cell :tit="item.name" :sub-tit="item.al.name" :index="index+1"></song-cell>
                 </li>
               </ul>
               <!-- 专辑列表 -->
@@ -42,7 +43,7 @@
               <ul v-if="currentTabIndex === 2" class="singer-desc">
                 <li v-for="item in singerDesc" >
                   <h3>{{ item.ti }}</h3>
-                  <p>{{ item.txt | br }}</p>
+                  <p v-for="t in splitDesc(item.txt)">{{ t }}</p>
                 </li>
               </ul>
             </div>
@@ -59,6 +60,7 @@ import myHeader from '@/components/base/Header/Header';
 import Scroll from '@/components/base/Scroll/Scroll';
 import Navigator from '@/components/base/Navigator/Navigator';
 import Loading from '@/components/base/Loading/Loading';
+import SongCell from '@/components/base/SongCell/SongCell';
 import { mapState } from 'vuex';
 import { getSingerSongs, getSingerAlbum, getSingerDesc } from '@/api/singer';
 import { songMixin } from '@/assets/js/mixin';
@@ -70,6 +72,7 @@ export default {
     Scroll,
     Navigator,
     Loading,
+    SongCell,
   },
   data() {
     return {
@@ -113,10 +116,7 @@ export default {
     ]),
   },
   filters: {
-    br(value) {
-      if (!value) return '';
-      return value.split('\n').join('<br>');
-    },
+
   },
   methods: {
     findSingerById(arr, singerid) {
@@ -173,6 +173,9 @@ export default {
       // console.log(pos.y);
       this.scrollY = pos.y;
     },
+    splitDesc(txt) {
+      return txt.split('\n');
+    }
   },
   created() {
     this.probeType = 3;
@@ -341,6 +344,6 @@ export default {
     font-size: 12px;
     color:#9c9d9f;
     line-height: 1.5;
-    padding: 0.5em 1em;
+    padding: 0.1em 1em;
   }
 </style>

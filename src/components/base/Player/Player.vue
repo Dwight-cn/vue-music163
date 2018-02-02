@@ -459,6 +459,7 @@ export default {
   .player-wrap{
     display: flex;
     flex-direction: column;
+    background: rgba(0, 0, 0, 0.15);
   }
   .player-header{
     position: relative;

@@ -1,18 +1,17 @@
 <template>
   <div class="hello">
     hellow
-    <cell></cell>
-    <cell></cell>
+    <song-cell></song-cell>
   </div>
 </template>
 
 <script>
-import Cell from '@/components/base/Cell/Cell';
+import SongCell from '@/components/base/SongCell/SongCell';
 
 export default {
   name: 'HelloWorld',
   components: {
-    Cell,
+    SongCell,
   },
   data() {
     return {

@@ -9,13 +9,13 @@
         <!--单曲-->
         <scroll ref="scroll-1" :data="searchResult[0].result" class="result-list songs-result" v-if="id==1" :pullUpLoad="pullUpLoad" @pullingUp="loadmore">
           <ul>
-            <li v-for="(item,index) in searchResult[0].result" class="result-list-item" @click="_insertSong(item)">
-              <cell :tit="item.name">
+            <li v-for="(item,index) in searchResult[0].result" class="result-list-item" >
+              <song-cell :tit="item.name" :song="item">
                 <div slot="sub-tit">
                   <span><span v-for="artist in item.artists" class="item-info-artist">{{ artist.name }}</span></span>
                   - <span>{{ item.album.name }}</span>
                 </div>
-              </cell>
+              </song-cell>
             </li>
           </ul>
           <loading v-if="!searchResult[0].result.length"></loading>
@@ -93,18 +93,17 @@
 import Scroll from '@/components/base/Scroll/Scroll';
 import Navigator from '@/components/base/Navigator/Navigator';
 import Loading from '@/components/base/Loading/Loading';
-import Cell from '@/components/base/Cell/Cell';
+import SongCell from '@/components/base/SongCell/SongCell';
 import { mapState, mapActions } from 'vuex';
 import { getSearchResult } from '@/api/search';
-import { songMixin } from '@/assets/js/mixin';
 
 export default {
-  mixins: [songMixin],
+  // mixins: [songMixin],
   components: {
     Scroll,
     Navigator,
     Loading,
-    Cell,
+    SongCell,
   },
   data() {
     return {

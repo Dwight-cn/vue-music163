@@ -21,7 +21,7 @@ export default {
     iconUrl: String,
     tit: {
       type: [String, Number],
-      default: '大标题'
+      default: '大标题',
     },
     subTit: [String, Number],
   },
@@ -30,7 +30,7 @@ export default {
   },
   methods: {},
   created() {},
-  mounted() {}
+  mounted() {},
 };
 </script>
 
