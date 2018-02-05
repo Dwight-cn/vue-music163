@@ -1,6 +1,6 @@
 <template>
   <div class="cell">
-    <figure class="cell-icon" :style="`background-image:url(${iconUrl})`">
+    <figure class="cell-left" :class="{'cell-left-img': iconUrl}" :style="`background-image:url(${iconUrl})`">
       <slot name="left"></slot>
     </figure>
     <div class="cell-con">
@@ -67,5 +67,40 @@ export default {
     font-weight: normal;
     color: #9c9d9f;
     line-height: 1.5;
+  }
+
+  /* 左侧图标 */
+  .cell-left-img{
+    flex: 0 0 auto;
+    position: relative;
+    width: 54px;
+    height: 54px;
+    margin-right: 8px;
+    line-height: 0;
+    background-color: #e2e3e5;
+    background-size: cover;
+  }
+
+
+  /*专辑*/
+  .albums-cell .cell-left-img{
+    margin-right: 20px;
+  }
+  .albums-cell .cell-left-img::after{
+    content: "";
+    position: absolute;
+    top: 2px;
+    right: -10px;
+    width: 10px;
+    height: 50px;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url(../../../assets/img/albums-bg.png);
+  }
+
+  /* 用户 */
+  .user-cell .cell-left-img{
+    border-radius: 50%;
+    overflow: hidden;
   }
 </style>

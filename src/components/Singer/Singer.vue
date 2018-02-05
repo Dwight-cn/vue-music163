@@ -16,27 +16,22 @@
             <div class="tab-container">
               <!-- 热门单曲 -->
               <ul v-if="currentTabIndex === 0 && hotSongs">
-                <li v-for="(item,index) in hotSongs" :key="item.id" class="result-list-item" @click="_insertSong(item)">
-                  <!-- <figure class="result-list-item-index">
-                      {{ index + 1 }}
-                  </figure>
-                  <div class="result-list-item-con">
-                    <h4 class="overflow-ellipsis">{{ item.name }}</h4>
-                    <h5 class="overflow-ellipsis">
-                      <span>{{ item.al.name }}</span>
-                    </h5>
-                  </div> -->
+                <li @click="_playAll(hotSongs)">
+                  <cell class="play-all">
+                    <i class="iconfont icon-play" slot="left"></i>
+                    <div slot="tit">播放全部<span>（共{{ hotSongs.length }}首）</span></div>
+                  </cell>
+                </li>
+                <li v-for="(item,index) in hotSongs" :key="item.id">
                   <song-cell :tit="item.name" :sub-tit="item.al.name" :index="index+1"></song-cell>
                 </li>
               </ul>
               <!-- 专辑列表 -->
               <ul v-if="currentTabIndex === 1">
-                <li v-for="item in hotAlbums" :key="item.id" class="result-list-item albums-result-list-item">
-                  <figure class="result-list-item-img" :style="`background-image:url(${item.blurPicUrl})`"></figure>
-                  <div class="result-list-item-con">
-                    <h4 class="overflow-ellipsis">{{ item.name }}</h4>
-                    <!-- <h5 class="overflow-ellipsis">{{ item.artist.name }}</h5> -->
-                  </div>
+                <li v-for="item in hotAlbums" :key="item.id">
+                  <router-link :to="`/album/${item.id}`">
+                    <cell :iconUrl="item.blurPicUrl" :tit="item.name" :sub-tit="item.artist.name" class="albums-cell"></cell>
+                  </router-link>
                 </li>
               </ul>
               <!-- 歌手信息 -->
@@ -60,6 +55,7 @@ import myHeader from '@/components/base/Header/Header';
 import Scroll from '@/components/base/Scroll/Scroll';
 import Navigator from '@/components/base/Navigator/Navigator';
 import Loading from '@/components/base/Loading/Loading';
+import Cell from '@/components/base/Cell/Cell';
 import SongCell from '@/components/base/SongCell/SongCell';
 import { mapState } from 'vuex';
 import { getSingerSongs, getSingerAlbum, getSingerDesc } from '@/api/singer';
@@ -72,6 +68,7 @@ export default {
     Scroll,
     Navigator,
     Loading,
+    Cell,
     SongCell,
   },
   data() {
@@ -115,9 +112,6 @@ export default {
       'searchResult',
     ]),
   },
-  filters: {
-
-  },
   methods: {
     findSingerById(arr, singerid) {
       return arr.find((item) => {
@@ -133,14 +127,17 @@ export default {
     // 从搜索结果获取歌手信息
     _getSingerInfo() {
       const singer = this.findSingerById(this.searchResult[1].result, this.singerid);
-      this.singer = singer;
+      if (singer) {
+        this.singer = singer;
+      }
     },
     // 获取歌手热门歌曲
     _getSingerSongs() {
       getSingerSongs(this.singerid).then((res) => {
         if (res.data.code === 200) {
           this.hotSongs = res.data.hotSongs;
-          this.singer.img1v1Url = res.data.artist.picUrl;
+          // this.singer.img1v1Url = res.data.artist.picUrl;
+          this.singer = res.data.artist;
           console.log(res.data.hotSongs);
         }
       }).catch((err) => {
@@ -175,7 +172,7 @@ export default {
     },
     splitDesc(txt) {
       return txt.split('\n');
-    }
+    },
   },
   created() {
     this.probeType = 3;
@@ -223,7 +220,6 @@ export default {
   .header.singer-header{
     background-color: transparent;
     background:-webkit-gradient(linear, 0 0, 0 bottom, from(rgba(0, 0, 0, 0.2)), to(rgba(0, 0, 0, 0)));
-    z-index: 2;
   }
   .singer-img{
     /* padding-top: 60%; */
@@ -258,75 +254,7 @@ export default {
     min-height: 100vh;
     background-color: #fff;
   }
-  .result-list-item{
-    display: flex;
-    align-items: center;
-    height: 60px;
-    padding-left: 6px;
-    box-sizing: border-box;
-    width: 100%;
-    background-color: #fff;
-  }
-  .result-list-item-index{
-    width: 1.5em;
-    font-size: 16px;
-    color: #9c9d9f;
-    text-align: center;
-    padding-right: 10px;
-  }
-  .result-list-item .result-list-item-img{
-    flex: 0 0 auto;
-    position: relative;
-    width: 54px;
-    height: 54px;
-    margin-right: 8px;
-    line-height: 0;
-    background-color: #e2e3e5;
-    background-size: cover;
-  }
-  .result-list-item .result-list-item-img img{
-    width: 100%;
-  }
-  .result-list-item .result-list-item-con{
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    flex: 1 1 auto;
-    border-bottom: 1px solid #e2e3e5;
-    overflow: hidden;
-    padding-right: 30px;
-  }
-  .result-list-item .result-list-item-con span{
-    color: #9c9d9f;
-  }
-  .result-list-item .result-list-item-con h4{
-    font-size: 16px;
-    font-weight: normal;
-    color: #000;
-    line-height: 1.5;
-  }
-  .result-list-item .result-list-item-con h5{
-    font-size: 10px;
-    font-weight: normal;
-    color: #9c9d9f;
-    line-height: 1.5;
-  }
-  /*专辑*/
-  .albums-result-list-item .result-list-item-img{
-    margin-right: 20px;
-  }
-  .albums-result-list-item .result-list-item-img::after{
-    content: "";
-    position: absolute;
-    top: 2px;
-    right: -10px;
-    width: 10px;
-    height: 50px;
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-    background-image: url(../../assets/img/albums-bg.png);
-  }
+  
 
   /* 歌手描述 */
   .singer-desc>li{
@@ -345,5 +273,18 @@ export default {
     color:#9c9d9f;
     line-height: 1.5;
     padding: 0.1em 1em;
+  }
+
+  /* 播放全部 */
+  .cell.play-all{
+    height: 50px;
+  }
+  .play-all i{
+    display: inline-block;
+    width: 24px;
+    font-size: 16px;
+    color: #000;
+    text-align: center;
+    padding-right: 10px;
   }
 </style>

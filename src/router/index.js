@@ -10,6 +10,8 @@ const HelloWorld = () => import('@/components/HelloWorld');
 const Search = () => import('@/components/Search/Search');
 const SearchResult = () => import('@/components/base/SearchResult/SearchResult');
 const Singer = () => import('@/components/Singer/Singer');
+const Album = () => import('@/components/Album/Album');
+const Playlist = () => import('@/components/Playlist/Playlist');
 
 export default new Router({
   routes: [
@@ -38,6 +40,16 @@ export default new Router({
       path: '/singer/:id',
       name: 'Singer',
       component: Singer,
+    },
+    {
+      path: '/album/:id',
+      name: 'Album',
+      component: Album,
+    },
+    {
+      path: '/playlist/:id',
+      name: 'Playlist',
+      component: Playlist,
     },
   ],
 });

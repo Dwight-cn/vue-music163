@@ -67,6 +67,7 @@ export default {
     display: flex;
     background-color: #d63c34;
     color: #fff;
+    z-index: 2;
   }
   .left, .right{
     flex: 0.2;

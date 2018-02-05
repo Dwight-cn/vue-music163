@@ -26,13 +26,10 @@
           <loading v-if="!searchResult[1].result.length"></loading>
           <ul>
             <li v-for="item in searchResult[1].result">
-              <router-link :to="`/singer/${item.id}`" class="result-list-item">
-                <figure class="result-list-item-img" :style="`background-image:url(${item.img1v1Url})`">
-                  <!--<img :src="item.img1v1Url" alt="">-->
-                </figure>
-                <div class="result-list-item-con">
-                  <h4 class="overflow-ellipsis">{{ item.name }} <span v-for="i in  item.alia" :key="i">({{ i }})</span></h4>
-                </div>
+              <router-link :to="`/singer/${item.id}`">
+                <cell :iconUrl="item.img1v1Url">
+                  <div slot="tit">{{ item.name }} <span v-for="i in  item.alia" :key="i">({{ i }})</span></div>
+                </cell>
               </router-link> 
             </li>
           </ul>
@@ -42,14 +39,10 @@
         <scroll ref="scroll-10" class="result-list albums-result" v-if="id==10" :pullUpLoad="pullUpLoad" @pullingUp="loadmore">
           <loading v-if="!searchResult[2].result.length"></loading>
           <ul>
-            <li v-for="item in searchResult[2].result" :key="item.id" class="result-list-item albums-result-list-item">
-              <figure class="result-list-item-img" :style="`background-image:url(${item.blurPicUrl})`">
-                <!--<img :src="item.blurPicUrl" alt="">-->
-              </figure>
-              <div class="result-list-item-con">
-                <h4 class="overflow-ellipsis">{{ item.name }}</h4>
-                <h5 class="overflow-ellipsis">{{ item.artist.name }}</h5>
-              </div>
+            <li v-for="item in searchResult[2].result">
+              <router-link :to="`/album/${item.id}`">
+                <cell :iconUrl="item.blurPicUrl" :tit="item.name" :sub-tit="item.artist.name" class="albums-cell"></cell>
+              </router-link>
             </li>
           </ul>
         </scroll>
@@ -58,14 +51,13 @@
         <scroll ref="scroll-1000" class="result-list playlists-result" v-if="id==1000" :pullUpLoad="pullUpLoad" @pullingUp="loadmore">
           <loading v-if="!searchResult[3].result.length"></loading>
           <ul>
-            <li v-for="item in searchResult[3].result" :key="item.id" class="result-list-item">
-              <figure class="result-list-item-img" :style="`background-image:url(${item.coverImgUrl})`">
-                <!--<img :src="item.coverImgUrl" alt="">-->
-              </figure>
-              <div class="result-list-item-con">
-                <h4 class="overflow-ellipsis">{{ item.name }}</h4>
-                <h5 class="overflow-ellipsis">{{ item.trackCount }}首音乐 by {{ item.creator.nickname }}，播放{{ item.playCount }}次</h5>
-              </div>
+            <li v-for="item in searchResult[3].result">
+              <router-link :to="`/playlist/${item.id}`">
+                <cell :iconUrl="item.coverImgUrl"
+                      :tit="item.name"
+                      :sub-tit="`${item.trackCount}首音乐 by ${item.creator.nickname}，播放${item.playCount}次`"
+                      ></cell>
+              </router-link>
             </li>
           </ul>
         </scroll>
@@ -74,14 +66,14 @@
         <scroll ref="scroll-1002" class="result-list userprofiles-result" v-if="id==1002" :pullUpLoad="pullUpLoad" @pullingUp="loadmore">
           <loading v-if="!searchResult[4].result.length"></loading>
           <ul>
-            <li v-for="item in searchResult[4].result" :key="item.id" class="result-list-item user-result-list-item">
-              <figure class="result-list-item-img" :style="`background-image:url(${item.avatarUrl})`">
-                <!--<img :src="item.avatarUrl" alt="">-->
-              </figure>
-              <div class="result-list-item-con">
-                <h4 class="overflow-ellipsis">{{ item.nickname }}</h4>
-                <h5 class="overflow-ellipsis">{{ item.signature }}</h5>
-              </div>
+            <li v-for="item in searchResult[4].result">
+              <router-link :to="`/user/${item.userId}`">
+                <cell class="user-cell"
+                      :iconUrl="item.avatarUrl"
+                      :tit="item.nickname"
+                      :sub-tit="item.signature"
+                      ></cell>
+              </router-link>
             </li>
           </ul>
         </scroll>
@@ -93,6 +85,7 @@
 import Scroll from '@/components/base/Scroll/Scroll';
 import Navigator from '@/components/base/Navigator/Navigator';
 import Loading from '@/components/base/Loading/Loading';
+import Cell from '@/components/base/Cell/Cell';
 import SongCell from '@/components/base/SongCell/SongCell';
 import { mapState, mapActions } from 'vuex';
 import { getSearchResult } from '@/api/search';
@@ -103,6 +96,7 @@ export default {
     Scroll,
     Navigator,
     Loading,
+    Cell,
     SongCell,
   },
   data() {
@@ -180,16 +174,6 @@ export default {
       });
       // }
     },
-    // 向播放列表添加歌曲
-    /* _insertSong(song) {
-      // const song = this.searchResult[0].result[songIndex];
-      // console.log(song);
-      // if (song.copyrightId === 0) {
-      //   alert('无版权！');
-      //   return;
-      // }
-      this.insertSong(song);
-    }, */
     ...mapActions([
       'setSearchResultData',
       'addSearchResultData',
@@ -227,6 +211,8 @@ export default {
   },
 };
 </script>
+
+
 
 <style scoped>
   /* 搜索结果 */
@@ -275,73 +261,4 @@ export default {
     white-space: nowrap;
   }
 
-  /*歌手*/
-  .result-list-item{
-    display: flex;
-    align-items: center;
-    height: 60px;
-    padding-left: 6px;
-    box-sizing: border-box;
-    width: 100%;
-  }
-  .result-list-item .result-list-item-img{
-    flex: 0 0 auto;
-    position: relative;
-    width: 54px;
-    height: 54px;
-    margin-right: 8px;
-    line-height: 0;
-    background-color: #e2e3e5;
-    background-size: cover;
-  }
-  .result-list-item .result-list-item-img img{
-    width: 100%;
-  }
-  .result-list-item .result-list-item-con{
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    flex: 1 1 auto;
-    border-bottom: 1px solid #e2e3e5;
-    overflow: hidden;
-    padding-right: 30px;
-  }
-  .result-list-item .result-list-item-con span{
-    color: #9c9d9f;
-  }
-  .result-list-item .result-list-item-con h4{
-    font-size: 14px;
-    font-weight: normal;
-    color: #000;
-    line-height: 1.5;
-  }
-  .result-list-item .result-list-item-con h5{
-    font-size: 10px;
-    font-weight: normal;
-    color: #9c9d9f;
-    line-height: 1.5;
-  }
-
-  /*专辑*/
-  .albums-result-list-item .result-list-item-img{
-    margin-right: 20px;
-  }
-  .albums-result-list-item .result-list-item-img::after{
-    content: "";
-    position: absolute;
-    top: 2px;
-    right: -10px;
-    width: 10px;
-    height: 50px;
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-    background-image: url(../../../assets/img/albums-bg.png);
-  }
-
-  /*用户*/
-  .user-result-list-item>figure{
-    border-radius: 50%;
-    overflow: hidden;
-  }
 </style>

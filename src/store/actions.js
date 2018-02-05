@@ -31,7 +31,7 @@ export const addSearchResultData = ({ commit, state }, { id, page, data }) => {
   });
   searchResultItem.page = page;
   searchResultItem.result = [...searchResultItem.result, ...data];
-  console.log(searchResultItem.result);
+  // console.log(searchResultItem.result);
   commit(types.SET_SEARCH_RESULT, searchResultcopy);
 };
 
@@ -135,4 +135,12 @@ export const deleteSong = ({ commit, state }, song) => {
 
   const playingState = playlist.length > 0;
   commit(types.SET_PLAYING, playingState);
+};
+
+export const playAll = ({ commit, state }, songslist) => {
+  commit(types.SET_MODE, 0);
+  commit(types.SET_PLAYING, true);
+  commit(types.SET_PLAYLIST, songslist);
+  commit(types.SET_SEQUENCE_LIST, songslist);
+  commit(types.SET_CURRENT_INDEX, 0);
 };
