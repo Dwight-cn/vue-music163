@@ -35,6 +35,7 @@ export default {
       this.setSearchFocus(false);
     },
     searchEnter() {
+      this.blur();
       this.$router.push('/search/1');
     },
     // 提供给父组件调用
