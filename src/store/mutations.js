@@ -37,6 +37,9 @@ const mutations = {
   [types.SET_MODE](state, mode) {
     state.mode = mode;
   },
+  [types.SET_AUDIO_REF](state, ref) {
+    state.audioRef = ref;
+  },
 };
 
 export default mutations;

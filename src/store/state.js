@@ -26,6 +26,8 @@ const state = {
   currentIndex: -1,
   // 播放模式
   mode: playMode.sequence,
+  // audio ref
+  audioRef: null,
 };
 
 export default state;

@@ -1,6 +1,6 @@
 <template>
   <div class="cell">
-    <figure class="cell-left" :class="{'cell-left-img': iconUrl}" :style="`background-image:url(${iconUrl})`">
+    <figure class="cell-left" :class="{'cell-left-img': iconUrl}" v-lazy:background-image="iconUrl">
       <slot name="left"></slot>
     </figure>
     <div class="cell-con">

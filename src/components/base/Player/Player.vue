@@ -2,7 +2,7 @@
   <transition name="slide">
     <div class="player" v-show="playerShow">
       <!--模糊背景-->
-      <div class="player-bg" :style="`background-image:url(${songCover});`"></div>
+      <div class="player-bg" v-lazy:background-image="songCover"></div>
       <div class="player-wrap">
         <!--头部-->
         <div class="player-header">
@@ -15,30 +15,26 @@
         
         <div class="player-middle" @click="toggleCDShow">
           <!--唱片-->
-          <!-- <transition name="fade"> -->
-            <div class="cd-wrapper" ref="cdRef" :class="{show: cdShow}">
-              <img src="./img/cd-stylus.png" alt="" class="cd-stylus" :class="{playing: playing}">
-              <div class="cd" :class="{playing: playing}">
-                <img src="./img/cd.png" alt="">
-                <div class="cd-img">
-                  <img :src="songCover" alt="">
-                </div>
+          <div class="cd-wrapper" ref="cdRef" :class="{show: cdShow}">
+            <img src="./img/cd-stylus.png" alt="" class="cd-stylus" :class="{playing: playing}">
+            <div class="cd" :class="{playing: playing}">
+              <img src="./img/cd.png" alt="">
+              <div class="cd-img">
+                <img v-lazy="songCover" alt="">
               </div>
             </div>
-          <!-- </transition> -->
+          </div>
           <!-- 歌词 -->
-          <!-- <transition name="fade"> -->
-            <div class="lrc-wrapper" :class="{show: !cdShow}">
-              <scroll ref="lyricList" class="lrc-scroll">
-                <div class="lrc-inner" v-if="currentLyric">
-                  <p  ref="lyricLine" v-for="(line, index) in currentLyric.lines" :key="`lrc${index}-${line.time}`" :class="{current: index === currentLyricLine, near: Math.abs(index - currentLyricLine) < 5}">
-                    {{ line.txt }}
-                  </p>
-                </div>
-                <p v-else>暂无歌词 ^_^</p> 
-              </scroll>
-            </div>
-          <!-- </transition> -->
+          <div class="lrc-wrapper" :class="{show: !cdShow}">
+            <scroll ref="lyricList" class="lrc-scroll">
+              <div class="lrc-inner" v-if="currentLyric">
+                <p  ref="lyricLine" v-for="(line, index) in currentLyric.lines" :key="`lrc${index}-${line.time}`" :class="{current: index === currentLyricLine, near: Math.abs(index - currentLyricLine) < 5}">
+                  {{ line.txt }}
+                </p>
+              </div>
+              <p v-else>暂无歌词 ^_^</p> 
+            </scroll>
+          </div>
         </div>
         <div class="player-bottom">
           <!--进度条-->
@@ -96,7 +92,12 @@
       </div>
 
       <!-- 播放器 -->
-      <audio ref="audioRef" :src="currentSongUrl" @play="ready" @error="error" @timeupdate="timeupdate" @ended="ended">Your browser does not support the audio element.</audio>
+      <audio ref="audioRef" 
+             :src="currentSongUrl"
+             @canplay="ready"
+             @error="error"
+             @timeupdate="timeupdate"
+             @ended="ended">Your browser does not support the audio element.</audio>
     </div>
   </transition>
 </template>
@@ -118,7 +119,7 @@ export default {
   data() {
     return {
       // 播放url
-      currentSongUrl: '',
+      currentSongUrl: ' ',
       // 歌曲封面
       songCover: '',
       // 当前歌词
@@ -197,6 +198,7 @@ export default {
       getSongUrl(songid).then((res) => {
         const songUrl = res.data.data[0].url;
         this.currentSongUrl = songUrl;
+        // this.songPlay();
       });
     },
     // 获取封面
@@ -204,9 +206,9 @@ export default {
       getSongUrlDetail(songid).then((res) => {
         const songCoverUrl = res.data.songs[0].al.picUrl;
         this.songCover = songCoverUrl;
-        this.songPlay();
       });
     },
+    // 获取歌词
     _getSongLrc(songid) {
       getSongLrc(songid).then((res) => {
         if (res.data.lrc) {
@@ -226,14 +228,16 @@ export default {
     hidePlayer() {
       this.setPlayerShow(false);
     },
-    songPlay() {
+  /*   songPlay() {
       clearTimeout(this.timer);
       this.timer = setTimeout(() => {
         this.$refs.audioRef.play();
-      }, 1000);
-    },
+      }, 100);
+    }, */
     // audio API canplay 当浏览器可以播放音频/视频时
     ready() {
+      console.log('可以播放');
+      this.$refs.audioRef.play();
       this.songReady = true;
       // 把当前歌曲写进 vuex 最近播放 playHistory 中
       // this.saveplayHistory(this.currentSong);
@@ -241,7 +245,7 @@ export default {
     // audio API error 当在音频/视频加载期间发生错误时
     error() {
       this.songReady = false;
-      console.log('发生错误，无法播放！');
+      // console.log(err);
     },
     ended() {
       if (this.mode === playMode.loop) {
@@ -389,6 +393,7 @@ export default {
       setCurrentIndex: 'SET_CURRENT_INDEX',
       setMode: 'SET_MODE',
       setPlayList: 'SET_PLAYLIST',
+      setAudioRef: 'SET_AUDIO_REF',
     }),
     ...mapActions([
       'deleteSong',
@@ -398,7 +403,8 @@ export default {
 
   },
   mounted() {
-
+    // console.log(this.$refs.audioRef);
+    this.setAudioRef(this.$refs.audioRef);
   },
   watch: {
     currentSong(newVal) {
@@ -518,7 +524,8 @@ export default {
   }
   .cd-wrapper .cd-stylus{
     position: absolute;
-    width: 30%;
+    /* width: 30%; */
+    height: 40%;
     left: 50%;
     top: 0;
     margin-top: -3%;
@@ -532,15 +539,17 @@ export default {
     transform: rotate(0deg);
   }
   .cd-wrapper .cd{
-    width: 80%;
-    margin: 20% auto 0;
+    height: 64%;
+    /* margin: 20% auto 0; */
+    top: 18%;
     position: relative;
     animation: round 12s linear 0s both infinite; 
     animation-play-state: paused;
     -webkit-animation-play-state:paused;
+    text-align: center;
   }
   .cd-wrapper .cd>img{
-    width: 100%;
+    height: 100%;
     position: relative;
     z-index: 2;
   }
@@ -552,12 +561,13 @@ export default {
     top: 18%;
     border-radius: 50%;
     overflow: hidden;
-    background: url('img/cd-default.png') no-repeat;
-    background-size: 100% 100%;
+    background: url(img/cd-default.png) no-repeat;
+    background-size: auto 100%;
+    background-position: center;
     overflow: hidden;
   }
   .cd-wrapper .cd .cd-img img{
-    width: 100%;
+    /* width: 100%; */
     height: 100%;
   }
   .cd-wrapper .cd::before{
@@ -568,8 +578,9 @@ export default {
     top: 0;
     bottom: 0;
     background: url(img/cd-light.png) no-repeat;
-    background-size: 100% 100%;
+    background-size: auto 100%;
     z-index: 2;
+    background-position: center;
   }
   .cd-wrapper .cd.playing{
     animation-play-state: running;

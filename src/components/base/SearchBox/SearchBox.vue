@@ -80,7 +80,7 @@ export default {
     border: none;
     padding: 0;
     height: 30px;
-    line-height: 30px;
+    line-height: 18px;
     font-size: 14px;
     outline: none;
     background: #fff;
