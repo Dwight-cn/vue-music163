@@ -1,16 +1,16 @@
 <template>
   <div class="album">
     <!-- 头部 -->
-    <my-header :title="albumInfo.name" class="album-header"></my-header>
+    <my-header :title="albumInfo ? albumInfo.name : ''" class="album-header"></my-header>
     <!-- 专辑封面（模糊） -->
-    <div ref="bgImageRef" class="album-bg" :style="`background-image:url(${albumInfo.blurPicUrl});`"></div>
+    <div ref="bgImageRef" class="album-bg" v-lazy:background-image="albumInfo ? albumInfo.blurPicUrl : ''"></div>
     <div class="album-con">
       <scroll class="album-scroll">
         <!-- 专辑信息 -->
         <div class="album-info">
-          <div class="album-img" :style="`background-image:url(${albumInfo.blurPicUrl});`">
+          <div class="album-img" v-lazy:background-image="albumInfo ? albumInfo.blurPicUrl : ''">
           </div>
-          <div class="album-detail">
+          <div class="album-detail" v-if="albumInfo">
             <h3>{{ albumInfo.name }}</h3>
             <h4><router-link :to="`/singer/${albumInfo.artist.id}`">歌手：<span>{{ albumInfo.artist.name }}</span> ></router-link></h4>
             <h5>发行时间：{{ _formatDate(albumInfo.publishTime) }}</h5>
@@ -119,6 +119,7 @@ export default {
   }
   .album-bg{
     height: 50%;
+    background-color: #323232;
     background-size: cover;
     background-position: center;
     filter: blur(20px) brightness(80%);

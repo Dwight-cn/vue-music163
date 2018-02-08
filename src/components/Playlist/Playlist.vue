@@ -1,16 +1,16 @@
 <template>
-  <div class="playlist" v-if="playlistInfo">
+  <div class="playlist">
     <!-- 头部 -->
-    <my-header :title="playlistInfo.name" class="playlist-header"></my-header>
+    <my-header :title="playlistInfo ? playlistInfo.name : ''" class="playlist-header"></my-header>
     <!-- 专辑封面（模糊） -->
-    <div ref="bgImageRef" class="playlist-bg" :style="`background-image:url(${playlistInfo.coverImgUrl});`"></div>
+    <div ref="bgImageRef" class="playlist-bg" v-lazy:background-image="playlistInfo ? playlistInfo.coverImgUrl : ''"></div>
     <div class="playlist-con">
       <scroll class="playlist-scroll">
         <!-- 专辑信息 -->
         <div class="playlist-info">
-          <div class="playlist-img" :style="`background-image:url(${playlistInfo.coverImgUrl});`">
+          <div class="playlist-img" v-lazy:background-image="playlistInfo ? playlistInfo.coverImgUrl : ''">
           </div>
-          <div class="playlist-detail">
+          <div class="playlist-detail" v-if="playlistInfo">
             <h3>{{ playlistInfo.name }}</h3>
             <h4><router-link :to="`/user/${playlistInfo.creator.userId}`"><span>{{ playlistInfo.creator.nickname }}</span> ></router-link></h4>
           </div>
@@ -105,6 +105,7 @@ export default {
   }
   .playlist-bg{
     height: 50%;
+    background-color: #323232;
     background-size: cover;
     background-position: center;
     filter: blur(20px) brightness(80%);
@@ -132,21 +133,11 @@ export default {
     flex: 0 0 auto;
     width: 40%;
     padding-top: 40%;
-    margin-right: 10%;
+    margin-right: 5%;
     background-size: cover;
     position: relative;
   }
-  .playlist-img::after{
-    content: "";
-    position: absolute;
-    top: 5%;
-    right: -15%;
-    width: 15%;
-    height: 90%;
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-    background-image: url(../../assets/img/albums-bg.png);
-  }
+
   .playlist-detail{
     flex: 1 1 auto;
     overflow: hidden;

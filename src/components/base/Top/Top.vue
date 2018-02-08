@@ -1,6 +1,6 @@
 <!--头部组件-->
 <template>
-  <div class="header">
+  <div class="header" v-if="$route.name === 'Index' || $route.name === 'Search'">
     <search-box class="header-search" ref="searchboxref"></search-box>
     <transition name="fade">
       <div >
@@ -57,6 +57,11 @@ export default {
     position: relative;
     background: #d63c34;
     padding: 7px 10px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    /* z-index: 2; */
   }
   .header-search{
     margin-right: 44px;

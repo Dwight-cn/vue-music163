@@ -6,7 +6,7 @@
       </slot>
     </div>
     <div class="middle">
-      <h4 class="overflow-ellipsis">{{ title }}</h4>
+      <h4 class="overflow-ellipsis" v-if="title">{{ title }}</h4>
     </div>
     <div class="right">
       <slot name="right">

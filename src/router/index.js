@@ -6,7 +6,7 @@ import Router from 'vue-router';
 Vue.use(Router);
 
 // 路由懒加载
-const HelloWorld = () => import('@/components/HelloWorld');
+const Index = () => import('@/components/Index');
 const Search = () => import('@/components/Search/Search');
 const SearchResult = () => import('@/components/base/SearchResult/SearchResult');
 const Singer = () => import('@/components/Singer/Singer');
@@ -17,12 +17,12 @@ export default new Router({
   routes: [
     {
       path: '/',
-      redirect: '/hello',
+      redirect: '/index',
     },
     {
-      path: '/hello',
-      name: 'HelloWorld',
-      component: HelloWorld,
+      path: '/index',
+      name: 'Index',
+      component: Index,
     },
     {
       path: '/search',

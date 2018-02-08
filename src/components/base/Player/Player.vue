@@ -45,7 +45,7 @@
               <progress-bar :percent="percent" @percentChange="percentChange"></progress-bar>
             </div>
 
-            <span class="time time-r">{{ currentSong.duration / 1000 | format }}</span>
+            <span class="time time-r">{{ currentSong.dt / 1000 | format }}</span>
           </div>
           <!--控制区-->
           <ul class="player-ctrl">
@@ -81,7 +81,7 @@
                   <p class="overflow-ellipsis" @click="playSong(index)">
                     <i class="iconfont icon-notification"></i>
                     {{ item.name }}
-                    <span> - <span v-for="artist in item.artists" :key="`${item.id}attist${artist.name}`" class="item-info-artist">{{ artist.name }}</span></span>
+                    <span> - <span v-for="artist in item.ar" :key="`${item.id}attist${artist.name}`" class="item-info-artist">{{ artist.name }}</span></span>
                   </p>
                   <i class="iconfont icon-close2" @click="deleteSong(item)"></i>
                 </li>
@@ -177,7 +177,7 @@ export default {
     },
     // 播放进度
     percent() {
-      return this.currentTime / this.currentSong.duration * 1000;
+      return this.currentTime / this.currentSong.dt * 1000;
     },
   },
   // 过滤器
@@ -326,7 +326,7 @@ export default {
     },
     // props down，当进度改变了
     percentChange(newPercent) {
-      const currentTime = this.currentSong.duration / 1000 * newPercent;
+      const currentTime = this.currentSong.dt / 1000 * newPercent;
       this.$refs.audioRef.currentTime = currentTime;
 
       // 进度改变后自动播放

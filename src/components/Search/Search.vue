@@ -1,6 +1,7 @@
 <!--头部组件-->
 <template>
   <div class="search">
+    <top></top>
     <!--搜索历史-->
     <scroll class="search-hidtory-scroll">
       <p class="search-label search-hidtory-label">搜索历史</p>
@@ -51,6 +52,7 @@
 <script>
 import { songMixin } from '@/assets/js/mixin';
 import Scroll from '@/components/base/Scroll/Scroll';
+import Top from '@/components/base/Top/Top';
 import { getSearchSuggest } from '@/api/search';
 import { mapState, mapMutations, mapActions } from 'vuex';
 
@@ -59,6 +61,7 @@ export default {
   mixins: [songMixin],
   components: {
     Scroll,
+    Top,
   },
   data() {
     return {
