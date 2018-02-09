@@ -12,6 +12,7 @@ const SearchResult = () => import('@/components/base/SearchResult/SearchResult')
 const Singer = () => import('@/components/Singer/Singer');
 const Album = () => import('@/components/Album/Album');
 const Playlist = () => import('@/components/Playlist/Playlist');
+const User = () => import('@/components/User/User');
 
 export default new Router({
   routes: [
@@ -50,6 +51,11 @@ export default new Router({
       path: '/playlist/:id',
       name: 'Playlist',
       component: Playlist,
+    },
+    {
+      path: '/user/:id',
+      name: 'User',
+      component: User,
     },
   ],
 });

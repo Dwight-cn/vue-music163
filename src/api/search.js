@@ -12,6 +12,6 @@ export function getSearchSuggest(val) {
 export function getSearchResult(keywords, type, page) {
   const ipage = page || 0;
   const itype = type || 1;
-  const url = `${apiConfig.baseUrl}/search?keywords=${keywords}&offset=${ipage * 30}&type=${itype}&limit=30`;
+  const url = `${apiConfig.baseUrl}/search?keywords=${keywords}&offset=${ipage * 20}&type=${itype}&limit=20`;
   return axios.get(url);
 }

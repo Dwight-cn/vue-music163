@@ -23,6 +23,7 @@
               <div slot="tit">播放全部<span>（共{{ songs.length }}首）</span></div>
             </cell>
           </li>
+          <loading v-if="!songs.length"></loading>
           <li v-for="(item,index) in songs">
             <song-cell :tit="item.name" :sub-tit="item.ar.name" :index="index+1" :song="item"></song-cell>
           </li>
@@ -37,6 +38,7 @@ import myHeader from '@/components/base/Header/Header';
 import Scroll from '@/components/base/Scroll/Scroll';
 import Cell from '@/components/base/Cell/Cell';
 import SongCell from '@/components/base/SongCell/SongCell';
+import Loading from '@/components/base/Loading/Loading';
 import { mapState } from 'vuex';
 import { time } from '@/assets/js/tool';
 import { getPlaylist } from '@/api/playlist';
@@ -49,6 +51,7 @@ export default {
     Scroll,
     Cell,
     SongCell,
+    Loading,
   },
   data() {
     return {

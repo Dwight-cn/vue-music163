@@ -1,6 +1,6 @@
 <!--头部组件-->
 <template>
-  <div class="header" v-if="$route.name === 'Index' || $route.name === 'Search'">
+  <div class="header">
     <search-box class="header-search" ref="searchboxref"></search-box>
     <transition name="fade">
       <div >
@@ -16,7 +16,7 @@
 <script>
 import SearchBox from '@/components/base/SearchBox/searchBox';
 import PlayerMini from '@/components/base/PlayerMini/PlayerMini';
-import { mapState } from 'vuex';
+import { mapState, mapMutations } from 'vuex';
 
 export default {
   components: {
@@ -37,9 +37,16 @@ export default {
   },
   methods: {
     cancleSearch() {
-      this.$refs.searchboxref.clearKeywords();
+      // this.$refs.searchboxref.clearKeywords();
+      this.setSearchKeyWords('');
       this.$router.push('/');
     },
+    focus() {
+      this.$refs.searchboxref.focus();
+    },
+    ...mapMutations({
+      setSearchKeyWords: 'SET_SEARCH_KEYWORDS',
+    }),
   },
   watch: {
     searching: function searching(val) {

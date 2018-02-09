@@ -42,6 +42,9 @@ export default {
     blur() {
       this.$refs.searchinput.blur();
     },
+    focus() {
+      this.$refs.searchinput.focus();
+    },
     ...mapMutations({
       setSearchKeyWords: 'SET_SEARCH_KEYWORDS',
       setSearchFocus: 'SET_SEARCHING_FOCUS',
@@ -51,7 +54,7 @@ export default {
     ]),
   },
   created() {
-
+    this.keywords = this.searchKeyWords;
   },
   watch: {
     // 关键字改变时

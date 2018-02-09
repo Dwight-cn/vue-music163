@@ -1,7 +1,7 @@
 <!--头部组件-->
 <template>
   <div class="search">
-    <top></top>
+    <top ref="topRef"></top>
     <!--搜索历史-->
     <scroll class="search-hidtory-scroll">
       <p class="search-label search-hidtory-label">搜索历史</p>
@@ -116,7 +116,9 @@ export default {
     // this.setSearchKeyWorde('');
   },
   mounted() {
-
+    if (!this.searchKeyWords) {
+      this.$refs.topRef.focus();
+    }
   },
   watch: {
     searchKeyWords: function searchKeyWords(val) {

@@ -1,9 +1,13 @@
 <template>
   <div class="index">
+    <top></top>
     <div class="remd-wrap">
       <div class="remd-tit">
         推荐歌单 
         <!-- <i class="iconfont icon-right"></i> -->
+      </div>
+      <div class="loading" v-if="!remdPlaylist.length">
+        <loading></loading>
       </div>
       <ul class="remd-con">
         <li v-if="remdPlaylist && index < 6" v-for="(item, index) in remdPlaylist">
@@ -21,6 +25,9 @@
         最新音乐 
         <!-- <i class="iconfont icon-right"></i> -->
       </div>
+      <div class="loading" v-if="!remdSong.length">
+        <loading></loading>
+      </div>
       <ul class="remd-con">
         <li v-if="remdSong && index < 6" v-for="(item, index) in remdSong">
           <router-link :to="`/album/${item.song.album.id}`">
@@ -36,12 +43,15 @@
 </template>
 
 <script>
+import Top from '@/components/base/Top/Top';
+import Loading from '@/components/base/Loading/Loading';
 import { getRemdPlaylist, getRemdSong } from '@/api/index';
 
 export default {
-  name: 'HelloWorld',
+  name: 'Index',
   components: {
-
+    Top,
+    Loading,
   },
   data() {
     return {
@@ -119,5 +129,10 @@ export default {
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     overflow: hidden;
+  }
+
+  /* loading */
+  .loading{
+    padding: 40px 0;
   }
 </style>

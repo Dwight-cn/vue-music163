@@ -9,7 +9,7 @@
           <i class="iconfont icon-back" @click="hidePlayer"></i>
           <div class="song-name">
             <h4 class="overflow-ellipsis">{{ currentSong.name }}</h4>
-            <h5 class="overflow-ellipsis"><span v-for="(a, index) in currentSong.artists" :key="`title${index}-${a.id}`"> {{a.name}} </span> </h5>
+            <h5 class="overflow-ellipsis"><span v-for="(a, index) in currentSong.ar" :key="`title${index}-${a.id}`"> {{a.name}} </span> </h5>
           </div>
         </div>
         
@@ -111,7 +111,7 @@ import { playMode } from '@/store/default';
 import Lyric from '@/assets/js/lrc';
 
 export default {
-  name: 'HelloWorld',
+  name: 'Player',
   components: {
     ProgressBar,
     Scroll,
