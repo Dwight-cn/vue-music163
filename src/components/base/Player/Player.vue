@@ -9,7 +9,7 @@
           <i class="iconfont icon-back" @click="hidePlayer"></i>
           <div class="song-name">
             <h4 class="overflow-ellipsis">{{ currentSong.name }}</h4>
-            <h5 class="overflow-ellipsis"><span v-for="(a, index) in currentSong.ar" :key="`title${index}-${a.id}`"> {{a.name}} </span> </h5>
+            <h5 class="overflow-ellipsis"><span v-for="(a, index) in getArtist(currentSong)" :key="`title${index}-${a.id}`"> {{a.name}} </span> </h5>
           </div>
         </div>
         
@@ -17,12 +17,15 @@
           <!--唱片-->
           <div class="cd-wrapper" ref="cdRef" :class="{show: cdShow}">
             <img src="./img/cd-stylus.png" alt="" class="cd-stylus" :class="{playing: playing}">
-            <div class="cd" :class="{playing: playing}">
-              <img src="./img/cd.png" alt="">
-              <div class="cd-img">
-                <img v-lazy="songCover" alt="">
+            <div class="cd" ref="cd">
+              <div class="cd-inner" ref="cdInner" :class="{playing: playing}">
+                <img src="./img/cd.png" alt="">
+                <div class="cd-img">
+                  <img v-lazy="songCover" alt="">
+                </div>
               </div>
             </div>
+            
           </div>
           <!-- 歌词 -->
           <div class="lrc-wrapper" :class="{show: !cdShow}">
@@ -45,7 +48,7 @@
               <progress-bar :percent="percent" @percentChange="percentChange"></progress-bar>
             </div>
 
-            <span class="time time-r">{{ currentSong.dt / 1000 | format }}</span>
+            <span class="time time-r">{{ getDuration(currentSong) / 1000 | format }}</span>
           </div>
           <!--控制区-->
           <ul class="player-ctrl">
@@ -71,9 +74,15 @@
       <!--播放列表-->
       <div class="player-playlist-wrap" :class="{show: playlistShow}" @click="closePlaylist">
           <div class="player-playlist" @click.stop :class="{show: playlistShow}">
-            <div class="player-playlist-top"  @click="changeMode">
-              <i class="iconfont" :class="iconMode"></i>
-              <span>{{ modeText }}</span>
+            <div class="player-playlist-top">
+              <div class="left" @click="changeMode">
+                <i class="iconfont" :class="iconMode"></i>
+                <span>{{ modeText }}</span>
+              </div>
+              <div class="right" @click="clearPlaylist">
+                <i class="iconfont icon-delete"></i>
+                <span>清空</span>
+              </div>
             </div>
             <scroll class="player-playlist-scroll">
               <ul>
@@ -81,7 +90,7 @@
                   <p class="overflow-ellipsis" @click="playSong(index)">
                     <i class="iconfont icon-notification"></i>
                     {{ item.name }}
-                    <span> - <span v-for="artist in item.ar" :key="`${item.id}attist${artist.name}`" class="item-info-artist">{{ artist.name }}</span></span>
+                    <span> - <span v-for="artist in getArtist(item)" :key="`${item.id}attist${artist.name}`" class="item-info-artist">{{ artist.name }}</span></span>
                   </p>
                   <i class="iconfont icon-close2" @click="deleteSong(item)"></i>
                 </li>
@@ -177,7 +186,7 @@ export default {
     },
     // 播放进度
     percent() {
-      return this.currentTime / this.currentSong.dt * 1000;
+      return this.currentTime / this.getDuration(this.currentSong) * 1000;
     },
   },
   // 过滤器
@@ -223,6 +232,13 @@ export default {
       }).catch(() => {
         this.currentLyric = null;
       });
+    },
+    // 解决返回结果中歌手key不同
+    getArtist(song) {
+      return song.ar ? song.ar : song.artists;
+    },
+    getDuration(song) {
+      return song.dt ? song.dt : song.duration;
     },
     // 隐藏播放器
     hidePlayer() {
@@ -326,7 +342,7 @@ export default {
     },
     // props down，当进度改变了
     percentChange(newPercent) {
-      const currentTime = this.currentSong.dt / 1000 * newPercent;
+      const currentTime = this.getDuration(this.currentSong) / 1000 * newPercent;
       this.$refs.audioRef.currentTime = currentTime;
 
       // 进度改变后自动播放
@@ -369,7 +385,7 @@ export default {
     handleLyric({ lineNum }) {
       this.currentLyricLine = lineNum;
       const el = this.$refs.lyricLine[lineNum];
-      this.$refs.lyricList.scrollToElement(el, 1000);
+      this.$refs.lyricList.scrollToElement(el, 500);
     },
     // 切换cd显示
     toggleCDShow() {
@@ -397,6 +413,7 @@ export default {
     }),
     ...mapActions([
       'deleteSong',
+      'clearPlaylist',
     ]),
   },
   created() {
@@ -412,6 +429,8 @@ export default {
       if (!newVal.id) {
         this.songCover = '';
         this.songUrl = '';
+        this.closePlaylist();
+        this.setPlayerShow(false);
         return;
       }
       // 切歌时，停止当前歌词
@@ -419,16 +438,30 @@ export default {
         this.currentLyric.stop();
       }
 
+      // 初始化cd角度
+      // console.log('初始化cd角度');
+      this.$refs.cd.style.transform = 'none';
+
       this._getSongUrl(newVal.id);
       this._getSongCover(newVal.id);
       this._getSongLrc(newVal.id);
     },
     // 播放 or 暂停
-    playing(newVal) {
+    playing(playing) {
       const audio = this.$refs.audioRef;
       this.$nextTick(() => {
-        newVal ? audio.play() : audio.pause();
+        playing ? audio.play() : audio.pause();
       });
+      // 暂停时，暂停cd动画
+      if (!playing) {
+        const cdInTransform = getComputedStyle(this.$refs.cdInner).transform;
+        // console.log(getComputedStyle(this.$refs.cd).transform);
+        const sTransform = this.$refs.cd.style.transform;
+        // console.log(sTransform);
+        this.$refs.cd.style.transform = sTransform === 'none'
+          ? cdInTransform
+          : sTransform.concat(' ', cdInTransform);
+      }
     },
     playlist(val) {
       if (val.length === 0) {
@@ -525,11 +558,11 @@ export default {
   .cd-wrapper .cd-stylus{
     position: absolute;
     /* width: 30%; */
-    height: 40%;
+    height: 30%;
     left: 50%;
     top: 0;
-    margin-top: -3%;
-    margin-left: -5%;
+    margin-top: -2%;
+    margin-left: -3.3%;
     z-index: 2;
     transition: all 0.5s;
     transform-origin: 16% 5% 0;
@@ -539,16 +572,29 @@ export default {
     transform: rotate(0deg);
   }
   .cd-wrapper .cd{
-    height: 64%;
-    /* margin: 20% auto 0; */
-    top: 18%;
+    height: 68%;
+    top: 14%;
     position: relative;
-    animation: round 12s linear 0s both infinite; 
-    animation-play-state: paused;
-    -webkit-animation-play-state:paused;
+    /* animation-play-state: paused; */
+    /* -webkit-animation-play-state:paused; */
     text-align: center;
   }
-  .cd-wrapper .cd>img{
+  /* 适配全面屏 */
+  @media screen and (max-device-aspect-ratio:9/18){ 
+    .cd-wrapper .cd{
+      height: 60%;
+      top: 14%;
+    }
+  }
+  .cd-wrapper .cd-inner{
+    height: 100%;
+    position: relative;
+  }
+  .cd-wrapper .cd-inner.playing{
+    animation: round 12s linear 0s both infinite; 
+  }
+
+  .cd-wrapper .cd-inner>img{
     height: 100%;
     position: relative;
     z-index: 2;
@@ -561,7 +607,8 @@ export default {
     top: 18%;
     border-radius: 50%;
     overflow: hidden;
-    background: url(img/cd-default.png) no-repeat;
+    background-image: url(img/cd-default.jpg);
+    background-repeat: no-repeat;
     background-size: auto 100%;
     background-position: center;
     overflow: hidden;
@@ -570,7 +617,7 @@ export default {
     /* width: 100%; */
     height: 100%;
   }
-  .cd-wrapper .cd::before{
+  .cd-wrapper .cd-inner::before{
     content: " ";
     position: absolute;
     left: 0;
@@ -581,10 +628,6 @@ export default {
     background-size: auto 100%;
     z-index: 2;
     background-position: center;
-  }
-  .cd-wrapper .cd.playing{
-    animation-play-state: running;
-    -webkit-animation-play-state: running;
   }
 
   /* 歌词 */
@@ -606,6 +649,7 @@ export default {
     color: rgba(255, 255, 255, 0.5);
     line-height: 2.5;
     font-size: 16px;
+    padding: 0 10%;
   }
   .lrc-wrapper .lrc-scroll p.near{
     color: rgba(255, 255, 255, 0.5)
@@ -668,12 +712,14 @@ export default {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 9;
     font-size: 16px;
-    display: none;
+    animation: playlistOut 0.3s 0s both;
   }
   .player-playlist-wrap.show{
+    opacity: 1;
+    z-index: 9;
     display: block;
+    animation: none;
   }
   .player-playlist{
     display: flex;
@@ -685,9 +731,10 @@ export default {
     max-height: 60%;
     background-color: rgba(255, 255, 255, 0.9);
     color: #000;
+    animation: slideOutDown 0.3s 0s both;
   }
   .player-playlist-wrap .player-playlist.show{
-    animation: slideUp 0.3s 0s both;
+    animation: slideInUp 0.3s 0s both;
   }
   .player-playlist-top{
     padding: 10px;
@@ -732,6 +779,7 @@ export default {
   }
   .player-playlist-item .icon-close2{
     padding: 0 10px;
+    color: #9c9d9f;
   }
   .playlist-close-btn{
     line-height: 55px;
@@ -763,13 +811,64 @@ export default {
       transform: rotate(1turn);
     }
   }
+  @-webkit-keyframes round {
+    100% {
+      transform: rotate(1turn);
+    }
+  }
 
-  @keyframes slideUp {
+  @keyframes slideInUp {
     0% {
       transform: translateY(100%);
     }
     100% {
       transform: translateY(0);
+    }
+  }
+  @-webkit-keyframes slideInUp {
+    0% {
+      transform: translateY(100%);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideOutDown {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(100%);
+    }
+  }
+  @-webkit-keyframes slideOutDown {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(100%);
+    }
+  }
+
+  @keyframes playlistOut {
+    0%,99%{
+      z-index: 9;
+      opacity: 1;
+    }
+    100% {
+      z-index: -1;
+      opacity: 0;
+    }
+  }
+  @-webkit-keyframes playlistOut {
+    0%,99%{
+      z-index: 9;
+      opacity: 1;
+    }
+    100% {
+      z-index: -1;
+      opacity: 0;
     }
   }
 </style>

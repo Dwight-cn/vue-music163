@@ -40,11 +40,11 @@ export default {
   methods: {
     sinsertSong(song) {
       // console.log(this.audioRef);
-      clearTimeout(this.timer);
-      this.timer = setTimeout(() => {
-        console.log(this.audioRef.src);
-        this.audioRef.play();
-      }, 1000);
+      // clearTimeout(this.timer);
+      // this.timer = setTimeout(() => {
+      //   console.log(this.audioRef.src);
+      //   this.audioRef.play();
+      // }, 1000);
       this._insertSong(song);
     },
   },

@@ -71,6 +71,7 @@ export default {
 
 <style scoped>
   .search-box{
+    width: 100%;
     position: relative;
     vertical-align: top;
     padding: 0 36px;

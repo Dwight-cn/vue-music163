@@ -10,7 +10,7 @@
     </div>
     <div class="right">
       <slot name="right">
-        <player-mini :playing="playing"></player-mini>
+        <player-mini :playing="playing" class="player-mini"></player-mini>
       </slot>
     </div>
 
@@ -80,6 +80,11 @@ export default {
   }
   .right{
     text-align: center;
+  }
+  .player-mini{
+    float: right;
+    margin-top: 11px;
+    margin-right: 3px;
   }
   .middle{
     flex: 1;

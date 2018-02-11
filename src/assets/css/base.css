@@ -1,3 +1,9 @@
+.left{
+  float: left;
+}
+.right{
+  float: right;
+}
 /*placeholder颜色*/
 input::-webkit-input-placeholder, textarea::-webkit-input-placeholder {
   color:#d6d6d6;

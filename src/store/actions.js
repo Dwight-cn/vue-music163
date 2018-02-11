@@ -137,6 +137,13 @@ export const deleteSong = ({ commit, state }, song) => {
   commit(types.SET_PLAYING, playingState);
 };
 
+export const clearPlaylist = ({ commit }) => {
+  commit(types.SET_PLAYLIST, []);
+  commit(types.SET_SEQUENCE_LIST, []);
+  commit(types.SET_CURRENT_INDEX, -1);
+  commit(types.SET_PLAYING, false);
+};
+
 export const playAll = ({ commit, state }, songslist) => {
   commit(types.SET_MODE, 0);
   commit(types.SET_PLAYING, true);

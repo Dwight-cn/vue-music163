@@ -2,13 +2,14 @@
 <template>
   <div class="header">
     <search-box class="header-search" ref="searchboxref"></search-box>
+    <transition name="sx">
+      <div class="search-right" v-if="searching || playlist.length"></div>
+    </transition>
     <transition name="fade">
-      <div >
-        <player-mini :playing="playing" v-if="!searching"></player-mini>
-      </div>
+      <player-mini :playing="playing" v-show="!searching" class="player-mini"></player-mini>
     </transition>
     <transition name="slide">
-      <span class="cancle-search" v-if="searching" @click="cancleSearch">取消</span>
+        <span class="cancle-search" v-show="searching" @click="cancleSearch">取消</span>
     </transition>
   </div>
 </template>
@@ -33,6 +34,7 @@ export default {
     ...mapState([
       'searching',
       'playing',
+      'playlist',
     ]),
   },
   methods: {
@@ -68,19 +70,33 @@ export default {
     top: 0;
     left: 0;
     right: 0;
+    display: flex;
     /* z-index: 2; */
   }
-  .header-search{
-    margin-right: 44px;
-  }
+  /* .header-search{
+    transition: all 0.3s;
+  } */
   .cancle-search{
     display: block;
     position: absolute;
-    right: 10px;
-    top: 12px;
-    line-height: 22px;
+    line-height: 30px;
     color: #fff;
     font-size: 16px;
+    top: 7px;
+    right: 10px;
+    transform: translateX(0);
+    opacity: 1;
+  }
+  .player-mini{
+    position: absolute;
+    right: 13px;
+    top: 11px;
+    opacity: 1;
+  } 
+
+  .search-right{
+    width: 42px;
+    flex: 0 0 auto;
   }
 
   /*取消按钮过渡*/
@@ -98,5 +114,12 @@ export default {
   }
   .fade-enter, .fade-leave-to {
     opacity: 0;
+  }
+
+  .sx-enter-active, .sx-leave-active {
+    transition: all .2s;
+  }
+  .sx-enter, .sx-leave-to {
+    width: 0;
   }
 </style>

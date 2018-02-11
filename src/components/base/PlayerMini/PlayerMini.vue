@@ -1,6 +1,6 @@
 <!--mini播放器组件-->
 <template>
-  <div class="player-mini" :class="{playing: playing}" @click="showPlayer">
+  <div class="player-mini" :class="{playing: playing}" @click="showPlayer" v-if="playlist.length">
     <span class="player-mini-item player-mini-item-1"></span>
     <span class="player-mini-item player-mini-item-2"></span>
     <span class="player-mini-item player-mini-item-3"></span>
@@ -9,10 +9,15 @@
 </template>
 
 <script>
-import { mapMutations } from 'vuex';
+import { mapState, mapMutations } from 'vuex';
 
 export default {
   props: ['playing'],
+  computed: {
+    ...mapState([
+      'playlist',
+    ]),
+  },
   methods: {
     showPlayer() {
       this.setPlayerShow(true);
@@ -26,11 +31,11 @@ export default {
 
 <style scoped>
   .player-mini{
-    position: absolute;
+    /* position: absolute; */
     height: 22px;
     width: 23px;
-    right: 13px;
-    top: 11px;
+    /* margin-right: 13px;
+    margin-top: 4px; */
     font-size: 0;
     line-height: 22px;
   }

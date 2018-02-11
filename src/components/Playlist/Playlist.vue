@@ -12,7 +12,12 @@
           </div>
           <div class="playlist-detail" v-if="playlistInfo">
             <h3>{{ playlistInfo.name }}</h3>
-            <h4><router-link :to="`/user/${playlistInfo.creator.userId}`"><span>{{ playlistInfo.creator.nickname }}</span> ></router-link></h4>
+            <h4>
+              <router-link :to="`/user/${playlistInfo.creator.userId}`">
+                <img v-lazy="playlistInfo.creator.avatarUrl" class="creator-avatar" alt="">
+                <span>{{ playlistInfo.creator.nickname }}</span> >
+              </router-link>
+            </h4>
           </div>
         </div>
         <!-- 专辑歌曲 -->
@@ -159,6 +164,12 @@ export default {
     font-size: 14px;
     color: rgba(255, 255, 255, 0.7);
     font-weight: normal;
+    line-height: 30px;
+  }
+  .creator-avatar{
+    width: 30px;
+    border-radius: 50%;
+    vertical-align: top;
   }
   .playlist-detail h4>a>span{
     color: #fff;
