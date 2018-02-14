@@ -57,5 +57,6 @@ module.exports = {
     'arrow-body-style': 0,
     'no-alert': 0,
     "no-restricted-syntax": 0,
+    "linebreak-style": 0,
   }
 }

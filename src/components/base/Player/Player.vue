@@ -476,11 +476,13 @@ export default {
   .player{
     position: fixed;
     width: 100%;
+    right: 0;
     left: 0;
     top: 0;
     bottom: 0;
     background: #999;
     overflow: hidden;
+    z-index: 9;
   }
   .player-bg, .player-wrap{
     position: absolute;
@@ -728,7 +730,8 @@ export default {
     bottom: 0;
     left: 0;
     width: 100%;
-    max-height: 60%;
+    /* max-height: 60%; */
+    height: 60%;
     background-color: rgba(255, 255, 255, 0.9);
     color: #000;
     animation: slideOutDown 0.3s 0s both;

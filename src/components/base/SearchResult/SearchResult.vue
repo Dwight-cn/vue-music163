@@ -131,9 +131,7 @@ export default {
       return new Promise((resolve, reject) => {
         const keywords = this.searchKeyWords;
         const type = this.id;
-        const nowItem = this.searchResult.find((item) => {
-          return item.id === parseInt(this.id, 10);
-        });
+        const nowItem = this.searchResult.find(item => (item.id === parseInt(this.id, 10)));
         if (nowItem) {
           let page = nowItem.page;
           getSearchResult(keywords, type, page).then((res) => {
@@ -143,7 +141,7 @@ export default {
               page,
               data: res.data.result[nowItem.key],
             };
-            // console.log(res);
+            console.log(res);
             resolve(params);
           }).catch((err) => {
             reject(err);

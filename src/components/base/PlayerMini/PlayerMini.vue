@@ -20,6 +20,7 @@ export default {
   },
   methods: {
     showPlayer() {
+      // alert(this.playing);
       this.setPlayerShow(true);
     },
     ...mapMutations({
