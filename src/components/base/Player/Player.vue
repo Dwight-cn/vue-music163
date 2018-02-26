@@ -208,6 +208,12 @@ export default {
         const songUrl = res.data.data[0].url;
         this.currentSongUrl = songUrl;
         // this.songPlay();
+        // console.log('获取歌曲链接后，iOS快播放');
+        clearTimeout(this.timer);
+        this.timer = setTimeout(() => {
+          // console.log(this.audioRef.src);
+          this.$refs.audioRef.play();
+        }, 300);
       });
     },
     // 获取封面
@@ -244,12 +250,6 @@ export default {
     hidePlayer() {
       this.setPlayerShow(false);
     },
-  /*   songPlay() {
-      clearTimeout(this.timer);
-      this.timer = setTimeout(() => {
-        this.$refs.audioRef.play();
-      }, 100);
-    }, */
     // audio API canplay 当浏览器可以播放音频/视频时
     ready() {
       console.log('可以播放');
@@ -433,13 +433,16 @@ export default {
         this.setPlayerShow(false);
         return;
       }
+
+      // 播放进度清零
+      this.currentTime = 0;
+
       // 切歌时，停止当前歌词
       if (this.currentLyric) {
         this.currentLyric.stop();
       }
 
       // 初始化cd角度
-      // console.log('初始化cd角度');
       this.$refs.cd.style.transform = 'none';
 
       this._getSongUrl(newVal.id);
@@ -449,6 +452,7 @@ export default {
     // 播放 or 暂停
     playing(playing) {
       const audio = this.$refs.audioRef;
+      // console.log(`playing:${playing}`);
       this.$nextTick(() => {
         playing ? audio.play() : audio.pause();
       });

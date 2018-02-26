@@ -31,7 +31,9 @@
       <div v-if="searchSuggest.albums">
         <p class="search-label search-suggest-label">专辑</p>
         <ul>
-            <li v-for="item in searchSuggest.albums" :key="item.id" class="search-suggest-item overflow-ellipsis">{{ item.name }} - {{ item.artist.name }}</li>
+            <li v-for="item in searchSuggest.albums" :key="item.id" class="search-suggest-item overflow-ellipsis">
+              <router-link :to="`/album/${item.id}`">{{ item.name }} - {{ item.artist.name }}</router-link>
+            </li>
         </ul>
       </div>
 
@@ -39,7 +41,9 @@
       <div v-if="searchSuggest.playlists">
         <p class="search-label search-suggest-label">歌单</p>
         <ul>
-            <li v-for="item in searchSuggest.playlists" :key="item.id" class="search-suggest-item overflow-ellipsis">{{ item.name }}</li>
+            <li v-for="item in searchSuggest.playlists" :key="item.id" class="search-suggest-item overflow-ellipsis">
+              <router-link :to="`/playlist/${item.id}`">{{ item.name }}</router-link>
+            </li>
         </ul>
       </div>
     </scroll>
@@ -176,6 +180,9 @@ export default {
     margin-left: 6px;
     box-sizing: border-box;
     border-bottom: 1px solid #e2e3e5;
+    color: #000;
+  }
+  .search-suggest-item a{
     color: #000;
   }
   .search-suggest-item:last-child{

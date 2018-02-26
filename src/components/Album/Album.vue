@@ -26,7 +26,11 @@
           </li>
           <loading v-if="!songs.length"></loading>
           <li v-for="(item,index) in songs">
-            <song-cell :tit="item.name" :sub-tit="item.ar.name" :index="index+1" :song="item"></song-cell>
+            <song-cell :tit="item.name" :index="index+1" :song="item">
+              <div slot="sub-tit">
+                <span><span v-for="artist in item.ar" class="item-info-artist">{{ artist.name }}</span></span>
+              </div>
+            </song-cell>
           </li>
         </ul>
       </scroll>
@@ -79,12 +83,12 @@ export default {
       if (albumInfo) {
         this.albumInfo = albumInfo;
       }
-      console.log(albumInfo);
+      // console.log(albumInfo);
     },
     // 获取专辑详情
     _getAlbum() {
       getAlbum(this.albumId).then((res) => {
-        // console.log(res.data);
+        console.log(res.data);
         this.songs = res.data.songs;
         this.albumInfo = res.data.album;
       }).catch((err) => {
@@ -195,6 +199,12 @@ export default {
   .album-songslist{
     background-color: #fff;
     min-height: 90vh;
+  }
+  .item-info-artist::after{
+    content: ' / ';
+  }
+  .item-info-artist:last-child::after{
+    content: '';
   }
 
   /* 播放全部 */

@@ -23,7 +23,7 @@
                   </cell>
                 </li>
                 <li v-for="(item,index) in hotSongs" :key="item.id">
-                  <song-cell :tit="item.name" :sub-tit="item.al.name" :index="index+1"></song-cell>
+                  <song-cell :tit="item.name" :sub-tit="item.al.name" :index="index+1" :song="item"></song-cell>
                 </li>
               </ul>
               <!-- 专辑列表 -->

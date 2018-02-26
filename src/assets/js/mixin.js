@@ -24,10 +24,10 @@ export const songMixin = {
     },
     // 解决iOS无法播放
     iOSplay() {
-      console.log('iOS快播放');
+      // console.log('iOS快播放');
       clearTimeout(this.timer);
       this.timer = setTimeout(() => {
-        console.log(this.audioRef.src);
+        // console.log(this.audioRef.src);
         this.audioRef.play();
       }, 300);
     },

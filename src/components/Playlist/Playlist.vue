@@ -30,7 +30,12 @@
           </li>
           <loading v-if="!songs.length"></loading>
           <li v-for="(item,index) in songs">
-            <song-cell :tit="item.name" :sub-tit="item.ar.name" :index="index+1" :song="item"></song-cell>
+            <song-cell :tit="item.name" :index="index+1" :song="item">
+              <div slot="sub-tit">
+                <span><span v-for="artist in item.ar" class="item-info-artist">{{ artist.name }}</span></span>
+                - <span>{{ item.al.name }}</span>
+              </div>
+            </song-cell>
           </li>
         </ul>
       </scroll>
@@ -75,10 +80,9 @@ export default {
     // 获取专辑详情
     _pgetPlaylist() {
       getPlaylist(this.playlistId).then((res) => {
-        // console.log(res.data);
         this.songs = res.data.playlist.tracks;
         this.playlistInfo = res.data.playlist;
-        console.log(res.data);
+        // console.log(res.data);
       }).catch((err) => {
         console.log(err);
       });
@@ -182,6 +186,13 @@ export default {
   .playlist-songslist{
     background-color: #fff;
     min-height: 90vh;
+  }
+
+  .item-info-artist::after{
+    content: ' / ';
+  }
+  .item-info-artist:last-child::after{
+    content: '';
   }
 
   /* 播放全部 */
