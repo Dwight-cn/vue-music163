@@ -30,6 +30,9 @@ export const addSearchResultData = ({ commit, state }, { id, page, data }) => {
     return item.id === parseInt(id, 10);
   });
   searchResultItem.page = page;
+  if (!Array.isArray(searchResultItem.result)) {
+    searchResultItem.result = [];
+  }
   searchResultItem.result = [...searchResultItem.result, ...data];
   // console.log(searchResultItem.result);
   commit(types.SET_SEARCH_RESULT, searchResultcopy);
@@ -40,7 +43,7 @@ export const clearSearchResultData = ({ commit, state }) => {
   const searchResultcopy = [...state.searchResult];
   searchResultcopy.forEach((item) => {
     item.page = 0;
-    item.result = [];
+    item.result = null;
   });
   commit(types.SET_SEARCH_RESULT, searchResultcopy);
 };

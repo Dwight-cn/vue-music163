@@ -24,3 +24,13 @@ new Vue({
   template: '<App/>',
   components: { App },
 });
+
+// 路由跳转前，判断播放器是否显示，显示则隐藏
+router.beforeEach((to, from, next) => {
+  if (store.state.playerShow) {
+    store.commit('SET_PLAYER_SHOW', false);
+    next(false);
+  } else {
+    next();
+  }
+});

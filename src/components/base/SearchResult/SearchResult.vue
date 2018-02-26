@@ -18,12 +18,12 @@
               </song-cell>
             </li>
           </ul>
-          <loading v-if="!searchResult[0].result.length"></loading>
+          <loading v-if="searchResult[0].result===null"></loading>
+          <no-result v-if="searchResult[0].result && searchResult[0].result.length == 0" ></no-result>
         </scroll>
 
         <!--歌手-->
         <scroll ref="scroll-100" class="result-list artists-result" v-if="id==100" :pullUpLoad="pullUpLoad" @pullingUp="loadmore">
-          <loading v-if="!searchResult[1].result.length"></loading>
           <ul>
             <li v-for="item in searchResult[1].result">
               <router-link :to="`/singer/${item.id}`">
@@ -33,11 +33,12 @@
               </router-link> 
             </li>
           </ul>
+          <loading v-if="searchResult[1].result===null"></loading>
+          <no-result v-if="searchResult[1].result && searchResult[1].result.length == 0" ></no-result>
         </scroll>
 
         <!--专辑-->
         <scroll ref="scroll-10" class="result-list albums-result" v-if="id==10" :pullUpLoad="pullUpLoad" @pullingUp="loadmore">
-          <loading v-if="!searchResult[2].result.length"></loading>
           <ul>
             <li v-for="item in searchResult[2].result">
               <router-link :to="`/album/${item.id}`">
@@ -45,11 +46,12 @@
               </router-link>
             </li>
           </ul>
+          <loading v-if="searchResult[2].result===null"></loading>
+          <no-result v-if="searchResult[2].result && searchResult[2].result.length == 0" ></no-result>
         </scroll>
 
         <!--歌单-->
         <scroll ref="scroll-1000" class="result-list playlists-result" v-if="id==1000" :pullUpLoad="pullUpLoad" @pullingUp="loadmore">
-          <loading v-if="!searchResult[3].result.length"></loading>
           <ul>
             <li v-for="item in searchResult[3].result">
               <router-link :to="`/playlist/${item.id}`">
@@ -60,11 +62,12 @@
               </router-link>
             </li>
           </ul>
+          <loading v-if="searchResult[3].result===null"></loading>
+          <no-result v-if="searchResult[3].result && searchResult[3].result.length == 0" ></no-result>
         </scroll>
 
         <!--用户-->
         <scroll ref="scroll-1002" class="result-list userprofiles-result" v-if="id==1002" :pullUpLoad="pullUpLoad" @pullingUp="loadmore">
-          <loading v-if="!searchResult[4].result.length"></loading>
           <ul>
             <li v-for="item in searchResult[4].result">
               <router-link :to="`/user/${item.userId}`">
@@ -76,6 +79,8 @@
               </router-link>
             </li>
           </ul>
+          <loading v-if="searchResult[4].result===null"></loading>
+          <no-result v-if="searchResult[4].result && searchResult[4].result.length == 0" ></no-result>
         </scroll>
       </div>
   </div>
@@ -87,6 +92,7 @@ import Navigator from '@/components/base/Navigator/Navigator';
 import Loading from '@/components/base/Loading/Loading';
 import Cell from '@/components/base/Cell/Cell';
 import SongCell from '@/components/base/SongCell/SongCell';
+import NoResult from '@/components/base/NoResult/NoResult';
 import { mapState, mapActions } from 'vuex';
 import { getSearchResult } from '@/api/search';
 
@@ -98,6 +104,7 @@ export default {
     Loading,
     Cell,
     SongCell,
+    NoResult,
   },
   data() {
     return {
@@ -141,7 +148,7 @@ export default {
               page,
               data: res.data.result[nowItem.key],
             };
-            console.log(res);
+            // console.log(res);
             resolve(params);
           }).catch((err) => {
             reject(err);
@@ -153,9 +160,20 @@ export default {
       const nowItem = this.searchResult.find((item) => {
         return item.id === parseInt(this.id, 10);
       });
-      if (!nowItem.result.length) {
+      if (!nowItem.result) {
         this._getSearchResult().then((res) => {
-          this.addSearchResultData(res);
+          // console.log(res);
+          if (res.data) {
+            this.addSearchResultData(res);
+          } else {
+            this.setSearchResultData({
+              id: res.id,
+              page: res.page,
+              data: [],
+            });
+          }
+        }).catch((err) => {
+          console.log(err);
         });
       }
     },
@@ -232,7 +250,7 @@ export default {
     width: 100%;
   }
   .result-list{
-    height: 100%;
+    /* height: 100%; */
   }
 
   .item-info-artist::after{

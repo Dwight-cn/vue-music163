@@ -44,7 +44,7 @@
             动态
           </div>
           <!-- 关于 -->
-          <div v-show="currentTabIndex === 2">
+          <div v-show="currentTabIndex === 2" v-if="user">
             <div class="user-info-item">
               <h3>个人信息</h3>
               <p>等级：{{ user.level }}</p>

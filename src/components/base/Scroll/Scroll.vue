@@ -13,11 +13,11 @@
         :isPullUpLoad="isPullUpLoad"
       >
       <div class="pullup-wrapper" v-if="pullUpLoad">
-        <div class="before-trigger" v-if="!isPullUpLoad">
-        <span>{{pullUpTxt}}</span>
+        <div class="after-trigger" v-if="isPullUpLoad">
+          <loading></loading>
         </div>
-        <div class="after-trigger" v-else>
-        <loading></loading>
+        <div class="before-trigger" v-else>
+          <span>{{pullUpTxt}}</span>
         </div>
       </div>
       </slot>
@@ -35,7 +35,7 @@
       </div>
       <div class="after-trigger" v-else>
         <div v-if="isPullingDown" class="loading">
-        <loading></loading>
+          <loading></loading>
         </div>
         <div v-else><span>{{refreshTxt}}</span></div>
       </div>
@@ -100,7 +100,7 @@ export default {
     },
     refreshDelay: {
       type: Number,
-      default: 20,
+      default: 50,
     },
     freeScroll: {
       type: Boolean,

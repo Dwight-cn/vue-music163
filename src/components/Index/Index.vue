@@ -121,7 +121,7 @@ export default {
     background-color: #e2e3e5; 
   }
   .remd-item-txt{
-    padding: 4px 6px;
+    margin: 4px 6px;
     font-size: 14px;
     color: #000;
 
